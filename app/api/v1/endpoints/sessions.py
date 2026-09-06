@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
 async def create_session(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     session_in: SessionCreate,
 ) -> Any:
     """
@@ -31,7 +31,7 @@ async def create_session(
 @router.get("/{session_id}", response_model=SessionResponse)
 async def get_session(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     session_id: uuid.UUID,
 ) -> Any:
     """
@@ -47,7 +47,7 @@ async def get_session(
 @router.put("/{session_id}", response_model=SessionResponse)
 async def update_session(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     session_id: uuid.UUID,
     session_in: SessionUpdate,
 ) -> Any:

@@ -10,6 +10,32 @@ class DecisionEnum(str, Enum):
     BLOCK = "BLOCK"
 
 
+class TrustClassEnum(str, Enum):
+    TRUSTED = "TRUSTED"
+    INTERNAL = "INTERNAL"
+    EXTERNAL = "EXTERNAL"
+    UNTRUSTED = "UNTRUSTED"
+    BLOCKED = "BLOCKED"
+    UNKNOWN = "UNKNOWN"
+
+
+class TrustResult(BaseModel):
+    is_trusted: bool
+    trust_class: TrustClassEnum
+    reasons: list[str] = Field(default_factory=list)
+
+
+class PermissionStatusEnum(str, Enum):
+    GRANTED = "GRANTED"
+    DENIED = "DENIED"
+    UNKNOWN = "UNKNOWN"
+
+
+class PermissionResult(BaseModel):
+    status: PermissionStatusEnum
+    reasons: list[str] = Field(default_factory=list)
+
+
 class SecurityDecision(BaseModel):
     """
     The final output of the Security Gateway evaluation pipeline.

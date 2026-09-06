@@ -11,18 +11,13 @@ from app.services.policy_service import PolicyService
 async def test_evaluate_endpoint_success(async_client: AsyncClient, db: AsyncSession):
     # Setup allow policy for the tool
     svc = PolicyService(db)
-    await svc.create_policy(PolicyCreate(
-        name="Allow Web Search",
-        priority=10,
-        rules=[
-            {
-                "effect": "ALLOW",
-                "condition": {
-                    "tool_id": {"eq": "web.search"}
-                }
-            }
-        ]
-    ))
+    await svc.create_policy(
+        PolicyCreate(
+            name="Allow Web Search",
+            priority=10,
+            rules=[{"effect": "ALLOW", "condition": {"tool_id": {"eq": "web.search"}}}],
+        )
+    )
 
     payload = {
         "agent_id": "agt_1",
@@ -52,7 +47,9 @@ async def test_evaluate_endpoint_missing_identity(async_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_evaluate_endpoint_unknown_tool_is_blocked(async_client: AsyncClient, db: AsyncSession):
+async def test_evaluate_endpoint_unknown_tool_is_blocked(
+    async_client: AsyncClient, db: AsyncSession
+):
     payload = {
         "agent_id": "agt_1",
         "session_id": "ses_1",
@@ -64,4 +61,3 @@ async def test_evaluate_endpoint_unknown_tool_is_blocked(async_client: AsyncClie
     data = response.json()
     assert data["decision"] == DecisionEnum.BLOCK.value
     assert "Default Deny" in data["reasons"][0]
-

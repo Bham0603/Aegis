@@ -155,3 +155,28 @@ class SessionResponse(SessionBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# --- User-Agent Delegation Schemas ---
+class UserAgentDelegationBase(BaseModel):
+    user_id: uuid.UUID
+    agent_id: uuid.UUID
+    enabled: bool = True
+    expires_at: datetime | None = None
+
+
+class UserAgentDelegationCreate(UserAgentDelegationBase):
+    pass
+
+
+class UserAgentDelegationUpdate(BaseModel):
+    enabled: bool | None = None
+    expires_at: datetime | None = None
+
+
+class UserAgentDelegationResponse(UserAgentDelegationBase):
+    id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

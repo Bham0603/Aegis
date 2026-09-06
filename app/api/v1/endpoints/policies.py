@@ -17,7 +17,7 @@ async def create_policy(
 ) -> Any:
     """Create a new security policy."""
     svc = PolicyService(db)
-    
+
     # Check if policy with same name exists
     existing = await svc.get_policy_by_name(policy_in.name)
     if existing:

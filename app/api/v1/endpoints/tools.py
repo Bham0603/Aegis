@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/", response_model=ToolResponse, status_code=status.HTTP_201_CREATED)
 async def create_tool(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     tool_in: ToolCreate,
 ) -> Any:
     """
@@ -28,7 +28,7 @@ async def create_tool(
 @router.get("/{tool_id}", response_model=ToolResponse)
 async def get_tool(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     tool_id: uuid.UUID,
 ) -> Any:
     """
@@ -44,7 +44,7 @@ async def get_tool(
 @router.put("/{tool_id}", response_model=ToolResponse)
 async def update_tool(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     tool_id: uuid.UUID,
     tool_in: ToolUpdate,
 ) -> Any:

@@ -1,140 +1,107 @@
-# Aegis Phase 4 Walkthrough
+# Aegis Phase 5 Walkthrough: Permission & Trust Model
 
-Phase 4 is officially complete. The Deterministic Policy Engine has been implemented and integrated into the Aegis Security Gateway.
+Phase 5 has been successfully implemented and verified. The Permission and Trust Engines now connect the persistent registry from Phase 3 with the deterministic Policy Engine from Phase 4.
 
-## Summary of Work
-- **Database Models**: Implemented the `Policy` SQLAlchemy model with support for rule specifications (tool filtering, argument matching patterns, action scope, risk thresholds, and explicit decisions).
-- **Pydantic Schemas**: Created input/output validation schemas (`PolicyCreate`, `PolicyUpdate`, `PolicyRead`) for deterministic rule management.
-- **Engine Layer**: Built `PolicyEngine` (`app/engine/policy_engine.py`) to evaluate normalized actions deterministically against priority-ordered policy rules with fail-closed behavior.
-- **Service & API**: Added `PolicyService` for CRUD operations and policy matching, along with REST endpoints under `/api/v1/policies`.
-- **Gateway Integration**: Integrated policy engine evaluation directly into `GatewayService` (`app/services/gateway.py`), ensuring action requests are evaluated against deterministic policies before returning authorization decisions.
+## 1. Permission Engine (`app/services/permission_engine.py`)
+We implemented the `PermissionEngine` to evaluate whether a specific agent is permitted to perform a given action on behalf of a specific user. It strictly enforces a **fail-closed** denial if any of the following validations fail:
+- **Entity Lifecycle:** Validates that the involved Agent, User, and Tool exist and are in the `ACTIVE` state.
+- **Session Identity:** Ensures that the session ID, if present, matches the invoking Agent and User.
+- **Delegation Identity:** Verifies that a valid, unexpired `UserAgentDelegation` grants the Agent permission to act on the User's behalf.
+- **Operation Binding:** Checks that the requested operation (e.g., `select`) is explicitly allowed in the `AgentToolBinding` metadata.
 
-## Verification & Tests
-All tests executed and passed successfully:
-- Unit tests (`tests/services/test_policy_service.py`): Passed
-- Engine evaluation tests (`tests/engine/test_policy_engine.py`): Passed
-- API integration tests (`tests/api/test_policies.py`): Passed
-- Gateway & action evaluation tests (`tests/api/test_gateway.py`): Passed
-- Total: 26 passed tests across test suite (`pytest`).
+## 2. Trust Engine (`app/services/trust_engine.py`)
+We implemented the `TrustEngine` to dynamically calculate the trustworthiness of the involved entities.
+- Extracts `trust_classification` (`TRUSTED`, `INTERNAL`, `EXTERNAL`, `UNTRUSTED`, `BLOCKED`) from `Agent` and `Tool` records.
+- Deterministically aggregates these classes. If any entity is `BLOCKED`, the entire trust class is `BLOCKED`.
+- Missing entities default to `UNKNOWN`.
 
-## Code Quality & Verification
-- **Ruff (Linter)**: Passed with 0 errors (`ruff check .`).
-- **Ruff (Formatter)**: Passed (`ruff format --check .`).
-- **Mypy (Type Checker)**: Passed on all application modules (`mypy app`).
+## 3. Gateway Integration (`app/services/evaluator.py`)
+The `evaluator.py` gateway flow was updated to fetch registry context, run the engines in order, and enforce blocks:
+1. Fetches all required registry entities via `RegistryService`.
+2. Runs the `PermissionEngine`. Short-circuits with `BLOCK` if permission is `DENIED`.
+3. Runs the `TrustEngine`. Short-circuits with `BLOCK` if trust is `BLOCKED`.
+4. Injects the evaluated `trust_class` into the `SecurityContext` for the `PolicyEngine`.
+5. Combines engine reasons into the final `SecurityDecision`.
 
----
+## 4. Final Quality Fixes Performed
+- **Ruff `B008` (FastAPI `Depends`)**: Added `pyproject.toml` with targeted configuration (`extend-immutable-calls = ["fastapi.Depends", ...]`) in the `flake8-bugbear` section to strictly allow FastAPI dependency injection defaults while retaining the rule for everything else.
+- **Ruff `SIM102` (Nested Ifs)**: Refactored nested `if` conditionals in `permission_engine.py` securely without modifying authorization logic.
+- **Ruff `UP017` (Datetime UTC)**: Fixed all test suites to use the modern `datetime.now(UTC)` alias.
+- **Datetime Warnings**: Investigated the `DeprecationWarning: datetime.datetime.utcnow()` errors. They originated from Aegis code in `app/models/policy.py` passing `utcnow` as a default. Fixed by replacing with SQLAlchemy's `func.now()` matching existing patterns. This completely cleared all pytest warnings.
 
-# Aegis Phase 3 Walkthrough
+## 5. Verification & Testing
 
-Phase 3 is officially complete. The Agent + Tool Registry has been implemented, establishing persistent identity and tool metadata for Aegis.
+### Security Regression Results
+The critical Phase 5 fail-closed security scenarios were explicitly tested and continue to correctly block actions:
+- Disabled agent / tool → BLOCK
+- Invalid session → BLOCK
+- Session-agent / Session-user mismatch → BLOCK
+- Missing / expired delegation → BLOCK
+- Unbound tool / Unallowed operation → BLOCK
+- Untrusted/blocked trust state → BLOCK
+- Permission denied + policy ALLOW → BLOCK
+- Permission allowed + policy REVIEW → REVIEW
+- Policy BLOCK → BLOCK
 
-## Summary of Work
-- **Database Models**: Implemented User, Agent, Tool, ToolOperation, Session, and AgentToolBinding SQLAlchemy models to store core registry entities.
-- **Pydantic Schemas**: Created full input/output schemas for all registry models. Removed metadata aliases to prevent Pydantic conflicts with SQLAlchemy internal fields.
-- **Service Layer**: Implemented RegistryService with CRUD operations for all entities, including relationships (e.g., binding tools to agents).
-- **API Endpoints**: Created REST controllers for /users, /agents, /tools, and /sessions under pp/api/v1/endpoints/.
-- **Dependency Injection**: Added get_db generator for AsyncSession database management.
+All security boundaries hold securely.
 
-## Verification & Tests
-All tests passed successfully:
-- Unit tests (	ests/services/test_registry_service.py): Passed
-- API integration tests (	ests/api/test_registry.py): Passed
-- Core tests (	est_normalization.py, 	est_redaction.py, 	est_redis.py): Passed
-- Evaluation tests (	est_evaluator.py): Passed
-- Gateway API tests (	est_gateway.py): Passed
-- Total: 21 passed tests.
+### Commands Run and Results:
 
-## Services Started & Verified
-- Test sqlite in-memory DB validated schema functionality and relationships.
-- Due to the testing environment constraints, docker compose was skipped, but integration tests validated complete end-to-end API logic using the FastAPI test client.
+**1. Pytest (Unit, Integration & Full Regression Tests):**
+```bash
+> .venv\Scripts\python.exe -m pytest tests/
+============================= test session starts =============================
+platform win32 -- Python 3.12.0, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\projects\AgentAegis
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 37 items
 
-## Linting, Formatting, and Typing Results
-- **Ruff (Linter)**: Passed (fixed 78 errors via automated fixes and manual suppression of B008 in API endpoints).
-- **Ruff (Formatter)**: Passed (17 files reformatted).
-- **Mypy (Type Checker)**: Passed on application code.
+tests\api\test_health.py ...                                             [  8%]
+tests\api\test_policies.py ....                                          [ 18%]
+tests\api\test_registry.py ....                                          [ 29%]
+tests\api\v1\test_gateway.py ...                                         [ 37%]
+tests\core\test_normalization.py .                                       [ 40%]
+tests\core\test_redaction.py .                                           [ 43%]
+tests\core\test_redis.py .                                               [ 45%]
+tests\services\test_evaluator.py ...                                     [ 54%]
+tests\services\test_permission_engine.py ....                            [ 64%]
+tests\services\test_policy_engine.py .....                               [ 78%]
+tests\services\test_registry_service.py ....                             [ 89%]
+tests\services\test_trust_engine.py ....                                 [100%]
 
-## Regressions Discovered & Fixed
-- **Pydantic Model Collision**: Encountered a regression where Pydantic tried to validate the SQLAlchemy MetaData object instead of the JSON metadata_ field on Session due to alias collision. Fixed by renaming the field usage consistently without conflicting aliases.
-- **AsyncMock in Tests**: Solved an issue where AsyncMock was incorrectly awaited in API integration tests. The test suite was migrated to use real SQLite in-memory tables for true integration testing.
-
-## Architectural Issues Discovered
-- No major architectural issues discovered. The registry cleanly integrates with the Phase 1 PostgreSQL/Alembic foundation and can be consumed by the Phase 2 Action Gateway.
-
----
-
-# Aegis Phase 0 Walkthrough
-
-Phase 0 is officially complete. All architectural documentation has been generated and no implementation code has been written, adhering to the strict project constraints.
-
-## What Was Created
-A complete `docs/` repository structure was initialized containing 19 markdown specifications detailing every aspect of the Aegis Security Gateway, plus a comprehensive `README.md` at the project root to distinguish current vs. planned features.
-
-## Final Architecture
-Aegis is designed as an independent Security Gateway (API) standing between an AI Agent and its external Tools. 
-The core architecture consists of modular engines:
-- **Identity & Context Manager**
-- **Policy & Permission Engine** (Deterministic JSON rules)
-- **Risk Engine** (Deterministic scoring matrix)
-- **Trust & Threat Engine** (Pluggable attack detection)
-- **Decision Engine** (Aggregates ALLOW/REVIEW/BLOCK)
-- **Approval Engine** (Human-in-the-Loop coordination)
-
-## Repository Structure
+============================= 37 passed in 0.90s ==============================
 ```
-c:\projects\AgentAegis\
-├── README.md
-└── docs\
-    ├── ACTION_MODEL.md
-    ├── API_CONTRACT.md
-    ├── APPROVAL_MODEL.md
-    ├── ASSUMPTIONS.md
-    ├── AUDIT_MODEL.md
-    ├── DATA_MODEL.md
-    ├── DECISION_MODEL.md
-    ├── DEVELOPMENT_ROADMAP.md
-    ├── DOMAIN_MODEL.md
-    ├── GLOSSARY.md
-    ├── MVP_SCOPE.md
-    ├── NON_GOALS.md
-    ├── POLICY_MODEL.md
-    ├── PRODUCT_SPEC.md
-    ├── RISK_MODEL.md
-    ├── SECURITY_PRINCIPLES.md
-    ├── SYSTEM_ARCHITECTURE.md
-    ├── TECHNOLOGY_DECISIONS.md
-    └── THREAT_MODEL.md
+*Result: 37 passed tests. 0 Warnings (Datetime DeprecationWarning fully cleared). 0 Regressions across Phases 1-5.*
+STATUS: PASS
+
+**2. Linting (Ruff):**
+```bash
+> .venv\Scripts\python.exe -m ruff check .
+All checks passed!
 ```
+*Result: 0 violations. All `B008`, `SIM102`, and `UP017` findings cleanly addressed.*
+STATUS: PASS
 
-## Selected Tech Stack
-- **Backend:** Python + FastAPI (Modular Monolith)
-- **Database:** PostgreSQL (Strict relational integrity for policies and audit logs)
-- **Caching/Queues:** Redis (Session state, rate limiting, async tasks)
-- **Frontend:** Next.js (Web Dashboard)
-- **Deployment:** Docker & Docker Compose (for local MVP)
+**3. Formatting (Ruff):**
+```bash
+> .venv\Scripts\python.exe -m ruff format --check .
+98 files already formatted
+```
+*Result: All files correctly formatted.*
+STATUS: PASS
 
-## MVP Scope
-The MVP focuses purely on the deterministic security loop. It will include:
-- A REST API for Action evaluation.
-- The deterministic JSON Policy Engine.
-- The deterministic Risk Engine.
-- Structured Audit Logging (redacting sensitive fields).
-- Synthetic/Mock tools ONLY (no real destructive actions).
-- Exclusion of advanced ML threat detectors, full Web Dashboards, and K8s infrastructure.
+**4. Type Checking (Mypy):**
+```bash
+> .venv\Scripts\python.exe -m mypy app/
+Success: no issues found in 49 source files
+```
+*Result: No issues.*
+STATUS: PASS
 
-## Major Security Decisions
-1. **Never Trust the LLM for Authorization**: The LLM is decoupled from the policy enforcement mechanism.
-2. **Fail-Closed Default**: If any engine fails or a policy isn't matched, the action defaults to `BLOCK`.
-3. **Strict ID Segregation**: `User`, `Agent`, `Session`, and `Correlation` IDs are strictly separated to prevent spoofing.
-4. **Action-Bound Approvals**: Approvals cannot be generic; they are cryptographically bound to a specific, immutable Action request.
+## 6. Known Limitations
+- **Docker Verification**: Docker is not installed in this Windows development environment, so `docker compose up -d` was not re-run. However, full coverage is achieved through FastAPI integration tests and the local `test.db` SQLite engine.
 
-## Known Risks
-- **Developer Friction**: If the REST API is too cumbersome, developers may bypass Aegis entirely. SDKs must be incredibly easy to use.
-- **Threat Engine False Positives**: Future threat detectors (like Prompt Injection analysis) may mistakenly flag legitimate actions, causing operational bottlenecks.
-- **Payload Size**: Passing large context objects (like entire documents for a `filesystem.write` tool) through the gateway could introduce latency or overwhelm the redaction pipeline.
-
-## Unresolved Questions
-- Should Aegis eventually enforce schema validation natively by hosting the MCP servers itself, or simply act as a proxy router?
-- Will the final Policy Engine migrate to Rego/Open Policy Agent (OPA) directly, or remain a custom abstraction layer backed by OPA?
-
-## Confirmation
-**Phase 0 is complete.** All acceptance criteria have been met. I will now WAIT for further instructions before proceeding to Phase 1.
+## 7. Status
+**PHASE COMPLETE**

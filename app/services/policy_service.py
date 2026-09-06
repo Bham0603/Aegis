@@ -48,7 +48,10 @@ class PolicyService:
 
         update_data = obj_in.model_dump(exclude_unset=True)
         if "rules" in update_data and update_data["rules"] is not None:
-            update_data["rules"] = [r.model_dump() if hasattr(r, "model_dump") else r for r in update_data["rules"]]
+            update_data["rules"] = [
+                r.model_dump() if hasattr(r, "model_dump") else r
+                for r in update_data["rules"]
+            ]
 
         for field, value in update_data.items():
             setattr(db_obj, field, value)
@@ -67,7 +70,5 @@ class PolicyService:
         return True
 
     async def get_active_policies(self) -> Sequence[Policy]:
-        result = await self.db.execute(
-            select(Policy).where(Policy.status == "ACTIVE")
-        )
+        result = await self.db.execute(select(Policy).where(Policy.status == "ACTIVE"))
         return result.scalars().all()

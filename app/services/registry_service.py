@@ -11,6 +11,7 @@ from app.models.session import Session
 from app.models.tool import Tool
 from app.models.tool_operation import ToolOperation
 from app.models.user import User, UserStatus
+from app.models.user_agent_delegation import UserAgentDelegation
 from app.schemas.registry import (
     AgentCreate,
     AgentToolBindingCreate,
@@ -19,6 +20,7 @@ from app.schemas.registry import (
     SessionUpdate,
     ToolCreate,
     ToolUpdate,
+    UserAgentDelegationCreate,
     UserCreate,
     UserUpdate,
 )
@@ -194,3 +196,28 @@ class RegistryService:
         await self.db.commit()
         await self.db.refresh(session)
         return session
+
+    # --- User-Agent Delegation Management ---
+    async def create_user_agent_delegation(
+        self, delegation_in: UserAgentDelegationCreate
+    ) -> UserAgentDelegation:
+        delegation = UserAgentDelegation(
+            user_id=delegation_in.user_id,
+            agent_id=delegation_in.agent_id,
+            enabled=delegation_in.enabled,
+            expires_at=delegation_in.expires_at,
+        )
+        self.db.add(delegation)
+        await self.db.commit()
+        await self.db.refresh(delegation)
+        return delegation
+
+    async def get_user_agent_delegation(
+        self, user_id: uuid.UUID, agent_id: uuid.UUID
+    ) -> UserAgentDelegation | None:
+        stmt = select(UserAgentDelegation).where(
+            UserAgentDelegation.user_id == user_id,
+            UserAgentDelegation.agent_id == agent_id,
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()

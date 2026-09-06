@@ -14,7 +14,9 @@ class PolicyEngine:
     """
 
     @staticmethod
-    def evaluate(action: Action, policies: list[Policy], context: dict[str, Any]) -> dict[str, Any]:
+    def evaluate(
+        action: Action, policies: list[Policy], context: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Evaluate policies using explicit precedence: BLOCK > REVIEW > ALLOW.
         Default is BLOCK (deny by default).
@@ -34,12 +36,14 @@ class PolicyEngine:
 
                 # If the rule matches the action, record it
                 if PolicyEngine._matches_condition(action, context, condition):
-                    results.append({
-                        "policy_id": str(policy.id),
-                        "policy_name": policy.name,
-                        "effect": effect,
-                        "priority": policy.priority,
-                    })
+                    results.append(
+                        {
+                            "policy_id": str(policy.id),
+                            "policy_name": policy.name,
+                            "effect": effect,
+                            "priority": policy.priority,
+                        }
+                    )
 
         # Precedence reduction: BLOCK > REVIEW > ALLOW
         final_effect = PolicyEffect.BLOCK
@@ -59,7 +63,9 @@ class PolicyEngine:
         }
 
     @staticmethod
-    def _matches_condition(action: Action, context: dict[str, Any], condition: dict[str, dict[str, Any]]) -> bool:
+    def _matches_condition(
+        action: Action, context: dict[str, Any], condition: dict[str, dict[str, Any]]
+    ) -> bool:
         """
         Evaluate if a given condition matches the action + context.
         Condition format:
@@ -112,9 +118,17 @@ class PolicyEngine:
                 return expected in actual
             return False
         elif op == "startswith":
-            return isinstance(actual, str) and isinstance(expected, str) and actual.startswith(expected)
+            return (
+                isinstance(actual, str)
+                and isinstance(expected, str)
+                and actual.startswith(expected)
+            )
         elif op == "endswith":
-            return isinstance(actual, str) and isinstance(expected, str) and actual.endswith(expected)
+            return (
+                isinstance(actual, str)
+                and isinstance(expected, str)
+                and actual.endswith(expected)
+            )
         elif op == "gt":
             return actual is not None and actual > expected
         elif op == "lt":

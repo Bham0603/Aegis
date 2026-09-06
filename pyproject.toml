@@ -1,0 +1,6 @@
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint.flake8-bugbear]
+# Allow FastAPI Depends and other dependency injection markers in argument defaults
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.Body"]

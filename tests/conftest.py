@@ -8,19 +8,22 @@ from app.db.base import Base
 from app.main import app as fastapi_app
 
 # Create a fresh memory database for each test session or function
-test_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False, future=True)
+test_engine = create_async_engine(
+    "sqlite+aiosqlite:///:memory:", echo=False, future=True
+)
 TestSessionLocal = async_sessionmaker(
     bind=test_engine, class_=AsyncSession, expire_on_commit=False
 )
+
 
 @pytest_asyncio.fixture
 async def db():
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     async with TestSessionLocal() as session:
         yield session
-    
+
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
@@ -37,6 +40,5 @@ async def async_client(db: AsyncSession):
         transport=ASGITransport(app=fastapi_app), base_url="http://test"
     ) as client:
         yield client
-    
-    fastapi_app.dependency_overrides.clear()
 
+    fastapi_app.dependency_overrides.clear()

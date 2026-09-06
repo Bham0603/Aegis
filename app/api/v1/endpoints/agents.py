@@ -21,7 +21,7 @@ router = APIRouter()
 @router.post("/", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
 async def create_agent(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     agent_in: AgentCreate,
 ) -> Any:
     """
@@ -36,7 +36,7 @@ async def create_agent(
 @router.get("/{agent_id}", response_model=AgentResponse)
 async def get_agent(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     agent_id: uuid.UUID,
 ) -> Any:
     """
@@ -52,7 +52,7 @@ async def get_agent(
 @router.put("/{agent_id}", response_model=AgentResponse)
 async def update_agent(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     agent_id: uuid.UUID,
     agent_in: AgentUpdate,
 ) -> Any:
@@ -73,7 +73,7 @@ async def update_agent(
 )
 async def bind_tool_to_agent(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     agent_id: uuid.UUID,
     binding_in: AgentToolBindingCreate,
 ) -> Any:
@@ -97,7 +97,7 @@ async def bind_tool_to_agent(
 @router.get("/{agent_id}/tools", response_model=Sequence[AgentToolBindingResponse])
 async def get_agent_tools(
     *,
-    db: AsyncSession = Depends(get_db),  # noqa: B008
+    db: AsyncSession = Depends(get_db),
     agent_id: uuid.UUID,
 ) -> Any:
     """

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.core.normalization import normalize_action
 from app.schemas.gateway import ActionRequest
@@ -21,4 +21,4 @@ def test_normalize_action_generates_identities():
     assert action.tool_id == "test.tool"
     assert action.parameters == {"k": "v"}
     assert isinstance(action.timestamp, datetime)
-    assert action.timestamp.tzinfo == timezone.utc
+    assert action.timestamp.tzinfo == UTC

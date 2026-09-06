@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +14,7 @@ def make_action(tool_id: str, operation: str | None = None) -> Action:
     return Action(
         action_id="act_test",
         correlation_id="trace_test",
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         agent_id="agt_1",
         session_id="ses_1",
         tool_id=tool_id,
@@ -35,18 +35,13 @@ async def test_evaluate_action_default_deny(db: AsyncSession):
 async def test_evaluate_action_allows_matched_policy(db: AsyncSession):
     # Create an allow policy
     svc = PolicyService(db)
-    await svc.create_policy(PolicyCreate(
-        name="Allow Web Search",
-        priority=10,
-        rules=[
-            {
-                "effect": "ALLOW",
-                "condition": {
-                    "tool_id": {"eq": "web.search"}
-                }
-            }
-        ]
-    ))
+    await svc.create_policy(
+        PolicyCreate(
+            name="Allow Web Search",
+            priority=10,
+            rules=[{"effect": "ALLOW", "condition": {"tool_id": {"eq": "web.search"}}}],
+        )
+    )
 
     action = make_action("web.search", "read")
     decision = await evaluate_action(action, db)
@@ -61,6 +56,7 @@ async def test_evaluate_action_fails_closed(monkeypatch, db: AsyncSession):
         raise ValueError("Simulated failure")
 
     import app.services.evaluator
+
     monkeypatch.setattr(app.services.evaluator.PolicyEngine, "evaluate", mock_evaluate)
 
     action = make_action("web.search", "read")

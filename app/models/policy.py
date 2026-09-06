@@ -5,6 +5,7 @@ from typing import Any
 
 from sqlalchemy import JSON, DateTime, Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
 
 from app.db.base import Base
 
@@ -33,14 +34,16 @@ class Policy(Base):
     priority: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     # Store list of PolicyRule dictionaries
-    rules: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
+    rules: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSON, default=list, nullable=False
+    )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=datetime.utcnow, nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False,
     )

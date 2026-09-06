@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.domain.action import Action
 from app.schemas.gateway import ActionRequest
@@ -13,7 +13,7 @@ def normalize_action(request: ActionRequest, correlation_id: str) -> Action:
     return Action(
         action_id=f"act_{uuid.uuid4().hex}",
         correlation_id=correlation_id,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         agent_id=request.agent_id,
         session_id=request.session_id,
         user_id=request.user_id,
