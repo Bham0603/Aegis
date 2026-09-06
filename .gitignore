@@ -1,0 +1,34 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+htmlcov/
+.coverage
+.tox/
+.mypy_cache/
+.ruff_cache/
+alembic.ini
+*.db
+
+
+# Frontend
+node_modules/
+.next/
+build/
+dist/
+coverage/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
