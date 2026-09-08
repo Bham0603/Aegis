@@ -13,7 +13,8 @@ graph TD
         ID[Identity & Context Manager]
         PE[Policy Engine]
         RE[Risk Engine]
-        TE[Trust & Threat Engine]
+        TE[Trust Engine]
+        THE[Threat Engine]
         AE[Approval Engine]
         
         ID --> PE
@@ -21,6 +22,7 @@ graph TD
         PE --> DE[Decision Engine]
         RE --> DE
         TE --> DE
+        THE --> DE
         AE --> DE
         
         DE --> AUD[Audit & Telemetry]
@@ -46,8 +48,11 @@ A deterministic rule evaluator. It matches the requested action against a set of
 ### Risk Engine
 Calculates a deterministic risk score (e.g., 0-100) based on action sensitivity, environment (e.g., production vs. staging), data classification, and historical behavior.
 
-### Trust & Threat Engine
-Evaluates the trust level of the tool and resource. Acts as an orchestration layer for pluggable threat detectors (e.g., prompt injection detection, anomaly detection). 
+### Trust Engine
+Evaluates the trust level of the tool and resource.
+
+### Threat Detection Engine
+Acts as an orchestration layer for pluggable deterministic threat detectors (e.g., Malformed Action, Payload Anomaly, Dangerous Pattern). Maps detector findings to standard severities (LOW to CRITICAL). 
 
 ### Decision Engine
 Aggregates the outputs of the Policy, Risk, and Threat engines to formulate the final, authoritative Security Decision. Resolves conflicts (e.g., Policy says ALLOW, but Threat Engine says BLOCK).

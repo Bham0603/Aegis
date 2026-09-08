@@ -1,4 +1,5 @@
 import uuid
+from datetime import UTC
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -159,6 +160,19 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
         # Include trust reason info
         reasons.extend(trust_result.reasons)
 
+        # 6. Evaluate Risk
+        from app.services.risk_engine import RiskEngine
+
+        risk_engine = RiskEngine()
+        risk_assessment = risk_engine.assess(action, _context, trust_result)
+
+        # 7. Evaluate Threat
+        from app.domain.threat import ThreatSeverity
+        from app.services.threat.engine import ThreatEngine
+
+        threat_engine = ThreatEngine()
+        threat_assessment = threat_engine.evaluate(action, _context)
+
         # Map PolicyEffect to DecisionEnum
         decision_val = DecisionEnum.BLOCK
         if final_effect == "ALLOW":
@@ -168,14 +182,150 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
         elif final_effect == "BLOCK":
             decision_val = DecisionEnum.BLOCK
 
-        # 6. Return decision
-        return SecurityDecision(
+        # 8. Apply Risk and Threat Thresholds (if Policy says ALLOW)
+        if decision_val == DecisionEnum.ALLOW:
+            # Risk thresholds
+            if risk_assessment.risk_score == 100:
+                decision_val = DecisionEnum.BLOCK
+                reasons.append(
+                    "Risk Threshold: BLOCKED due to CRITICAL risk score of 100."
+                )
+            elif risk_assessment.risk_score > 75:
+                decision_val = DecisionEnum.REVIEW
+                reasons.append(
+                    f"Risk Threshold: REVIEW required due to HIGH risk score ({risk_assessment.risk_score})."
+                )
+
+            # Threat thresholds
+            if threat_assessment.overall_severity == ThreatSeverity.CRITICAL:
+                decision_val = DecisionEnum.BLOCK
+                reasons.append(
+                    "Threat Threshold: BLOCKED due to CRITICAL threat detection."
+                )
+            elif (
+                threat_assessment.overall_severity == ThreatSeverity.HIGH
+                and decision_val != DecisionEnum.BLOCK
+            ):
+                decision_val = DecisionEnum.REVIEW
+                reasons.append(
+                    "Threat Threshold: REVIEW required due to HIGH threat detection."
+                )
+
+        reasons.append(
+            f"Risk Assessment: {risk_assessment.risk_level.value} ({risk_assessment.risk_score})"
+        )
+        if threat_assessment.overall_severity:
+            reasons.append(
+                f"Threat Assessment: {threat_assessment.overall_severity.value}"
+            )
+        else:
+            reasons.append("Threat Assessment: NONE")
+
+        highest_threat = (
+            threat_assessment.overall_severity.value
+            if threat_assessment.overall_severity
+            else None
+        )
+
+        # 9. Handle REVIEW decision - check existing approvals or create new
+        approval_required = decision_val == DecisionEnum.REVIEW
+        approval_request_id = None
+
+        if approval_required:
+            from datetime import datetime
+
+            from app.domain.approval import ApprovalStatus
+            from app.services.approval_service import ApprovalService
+            from app.services.fingerprint import generate_action_fingerprint
+            
+            approval_svc = ApprovalService(db)
+            action_fp = generate_action_fingerprint(action)
+            
+            existing_req = await approval_svc.get_request_by_fingerprint(action_fp)
+            
+            if existing_req:
+                if existing_req.status == ApprovalStatus.APPROVED:
+                    is_valid, _ = await approval_svc.verify_approval(action, existing_req.approval_request_id)
+                    if is_valid:
+                        decision_val = DecisionEnum.ALLOW
+                        approval_required = False
+                        reasons.append(f"REVIEW bypassed: Valid APPROVED request found ({existing_req.approval_request_id})")
+                        
+                elif existing_req.status == ApprovalStatus.PENDING:
+                    if not existing_req.is_expired(datetime.now(UTC)):
+                        approval_request_id = existing_req.approval_request_id
+                        reasons.append(f"Using existing PENDING request: {approval_request_id}")
+            
+            if approval_required and not approval_request_id:
+                temp_dec = SecurityDecision(
+                    action_id=action.action_id,
+                    correlation_id=action.correlation_id,
+                    timestamp=action.timestamp,
+                    decision=decision_val,
+                    risk_score=risk_assessment.risk_score,
+                    risk_level=risk_assessment.risk_level.value,
+                    highest_threat_severity=highest_threat,
+                    reasons=reasons,
+                )
+                new_req = await approval_svc.create_request(action, _context, temp_dec)
+                approval_request_id = new_req.approval_request_id
+
+            logger.info(
+                "approval_required" if approval_required else "approval_bypassed",
+                action_id=action.action_id,
+                correlation_id=action.correlation_id,
+                decision=decision_val.value,
+                approval_request_id=approval_request_id,
+            )
+
+        decision_final = SecurityDecision(
             action_id=action.action_id,
             correlation_id=action.correlation_id,
             timestamp=action.timestamp,
             decision=decision_val,
+            risk_score=risk_assessment.risk_score,
+            risk_level=risk_assessment.risk_level.value,
+            risk_explanation=risk_assessment.explanation,
+            risk_factors=[f.model_dump() for f in risk_assessment.factors],
+            highest_threat_severity=highest_threat,
+            threat_results=[f.model_dump() for f in threat_assessment.findings],
+            triggered_detectors=[f.detector_id for f in threat_assessment.findings],
             reasons=reasons,
+            approval_required=approval_required,
+            approval_request_id=approval_request_id,
         )
+
+        # Emit Audit Event
+        from app.domain.audit import AuditEvent, AuditEventType
+        from app.services.audit_service import AuditService
+        audit_svc = AuditService(db)
+        await audit_svc.log_event(
+            AuditEvent(
+                event_id=f"evt_{action.action_id}_eval",
+                event_type=AuditEventType.ACTION_EVALUATED,
+                timestamp=datetime.now(UTC),
+                correlation_id=action.correlation_id,
+                action_id=action.action_id,
+                agent_id=action.agent_id,
+                user_id=action.user_id,
+                session_id=action.session_id,
+                tool_id=action.tool_id,
+                operation=action.operation,
+                resource=action.resource,
+                environment=action.environment,
+                permission_result=permission_result.status.value,
+                trust_result=trust_result.trust_class.value,
+                policy_result=final_effect,
+                risk_score=risk_assessment.risk_score,
+                risk_level=risk_assessment.risk_level.value,
+                threat_severity=highest_threat,
+                approval_result="REQUESTED" if approval_required else ("BYPASSED" if approval_request_id else "NONE"),
+                final_decision=decision_val.value,
+                decision_reasons=reasons,
+                redacted_parameters=AuditService.redact_parameters(action.parameters)
+            )
+        )
+        return decision_final
 
     except Exception as e:  # noqa: BLE001
         logger.error(

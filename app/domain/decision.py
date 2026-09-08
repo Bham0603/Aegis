@@ -49,9 +49,15 @@ class SecurityDecision(BaseModel):
 
     risk_score: int | None = None
     risk_level: str | None = None
+    risk_explanation: str | None = None
+    risk_factors: list[dict] | None = None
 
     reasons: list[str] = Field(default_factory=list)
     violated_policies: list[str] = Field(default_factory=list)
     triggered_detectors: list[str] = Field(default_factory=list)
 
+    highest_threat_severity: str | None = None
+    threat_results: list[dict] | None = None
+
     approval_required: bool = False
+    approval_request_id: str | None = None

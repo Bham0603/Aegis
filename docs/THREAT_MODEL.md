@@ -1,42 +1,39 @@
-# Threat Model
+# Aegis Threat Model
 
-This document outlines the threats Aegis is designed to mitigate, categorized by implementation phase. Aegis assumes that the underlying LLM is a potentially compromised entity due to the nature of Prompt Injections and hallucination.
+## 1. Overview
+The Aegis Threat Engine evaluates normalized agent actions against a suite of deterministic detectors to identify suspicious patterns, malformed requests, or unusually dangerous operations.
 
-## 1. MVP Threats (Addressed in Initial Implementation)
+The Threat Engine is responsible for the question:
+> **"Does this action or action pattern contain a detectable security threat?"**
 
-These threats represent the fundamental risks of granting autonomy to agents, which Aegis mitigates deterministically in the MVP phase.
+It does **NOT** enforce identity authorization (Permission Engine), organizational rules (Policy Engine), or numeric risk calculation (Risk Engine). It produces a `ThreatAssessment` which acts as a signal for the overall Decision Engine to escalate or block.
 
-- **Excessive Agency / Excessive Autonomy**: Agents executing actions outside their intended scope.
-  - *Mitigation*: Policy Engine blocks any action not explicitly allowed for the Agent/Tool combination.
-- **Destructive Actions**: Agents accidentally or maliciously deleting data or mutating state.
-  - *Mitigation*: Risk Engine flags destructive operations (e.g., `DELETE`); Decision Engine forces human `REVIEW` or `BLOCK`.
-- **Privilege Escalation (Basic)**: Agents attempting to use tools reserved for higher-privileged users.
-  - *Mitigation*: Identity and Permission Engine validates user/agent binding against tool requirements.
-- **Approval Bypass**: Attempting to forge or skip human approval for sensitive actions.
-  - *Mitigation*: Approval Engine generates cryptographic, one-time, action-bound tokens that the agent cannot forge.
+## 2. Threat Severity
+Findings from detectors are mapped to one of the following severity levels:
+- `LOW`: Anomalies that are unusual but not inherently dangerous.
+- `MEDIUM`: Anomalies that warrant observation but do not strictly mandate blocking unless combined with other factors.
+- `HIGH`: Severe anomalies (e.g., impossible payloads) that mandate a `REVIEW` if the action is otherwise allowed.
+- `CRITICAL`: Highly dangerous deterministic patterns (e.g., destructive ops against external resources) that mandate an immediate `BLOCK`.
 
-## 2. V1 Threats (Addressed post-MVP)
+## 3. Implemented Threat Types
+Currently, Aegis supports deterministic heuristics for the following threat types:
+- `MALFORMED_ACTION`: Detects missing operations or mutually exclusive metadata states.
+- `SUSPICIOUS_PAYLOAD`: Detects payloads exceeding bounds (e.g., >50 parameters, strings >10,000 chars, nesting >10 levels).
+- `DANGEROUS_OPERATION_PATTERN`: Detects destructive operations (`delete`, `drop`) targeting sensitive resources (`production`, `auth`) or external web destinations.
 
-These threats require more advanced detection mechanisms, state tracking, and integration with the Trust Engine.
+## 4. Threat Engine Pipeline
+1. The gateway constructs an `Action` and `SecurityContext`.
+2. The `ThreatEngine` registers a list of `BaseThreatDetector` implementations.
+3. The engine sequentially executes each detector.
+4. Any raised `ThreatDetectionResult` is collected.
+5. The engine aggregates findings deterministically, taking the **highest severity** as the overall `ThreatAssessment` severity.
+6. If a detector crashes during execution, the engine fails-closed and injects a `HIGH` severity finding to prevent silent evaluation bypasses.
 
-- **Direct Prompt Injection (Jailbreaking)**: A user directly overriding the agent's instructions to perform malicious actions.
-  - *Mitigation*: Threat Engine analyzes the action sequence and parameters for malicious intent, independent of the LLM.
-- **Runaway Tool Usage / Denial-of-Wallet**: Agents stuck in loops calling expensive tools (e.g., paid APIs, massive DB queries).
-  - *Mitigation*: Policy Engine implements rate limiting and anomaly detection based on session history.
-- **Secret Exposure**: Agents accidentally passing secrets into tool arguments or logging them.
-  - *Mitigation*: Audit Engine implements strict redaction rules; Threat Engine inspects outbound parameters for credential patterns.
-- **Data Exfiltration**: Agents sending sensitive local data to untrusted external URLs.
-  - *Mitigation*: Trust Engine evaluates external destinations against an Allowlist/Blocklist.
+## 5. Exclusions & Future Capabilities
+The following threat categories are **NOT** currently supported by the deterministic engine:
+- LLM Prompt Injection or Indirect Prompt Injection.
+- Tool Semantic Poisoning.
+- Advanced Social Engineering detection.
+- Cross-session persistent behavioral anomaly tracking.
 
-## 3. Future / Research Threats
-
-These are advanced threats specific to the evolving ecosystem of multi-agent architectures and autonomous integration frameworks (like MCP).
-
-- **Indirect Prompt Injection**: Agents ingesting poisoned data from a tool (e.g., reading a compromised webpage) which then alters their behavior.
-  - *Mitigation*: Trust Model tags data provenance. Actions triggered by untrusted data incur massive risk score penalties.
-- **Tool Poisoning & Malicious MCP Servers**: A registered tool or MCP server intentionally returning malicious schemas or payloads to compromise the agent.
-  - *Mitigation*: MCP server trust validation, strict schema enforcement, and payload sanitization before returning to the agent.
-- **Cross-Agent Trust Abuse**: A compromised agent attempting to instruct a highly-privileged agent to perform actions on its behalf.
-  - *Mitigation*: Identity Engine tracks cross-agent invocation chains; Policy Engine applies the intersection of permissions (least privilege).
-- **Memory Poisoning**: Attackers injecting persistent malicious context into an agent's long-term memory store.
-  - *Mitigation*: Provenance tracking on memory writes; continuous scanning of memory stores.
+These capabilities are deferred to Phase 11 (AI-assisted security intelligence) and Phase 9 (Persistent Audit History).

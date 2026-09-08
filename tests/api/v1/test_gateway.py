@@ -33,6 +33,10 @@ async def test_evaluate_endpoint_success(async_client: AsyncClient, db: AsyncSes
     assert "action_id" in data
     assert "correlation_id" in data
     assert data["decision"] == DecisionEnum.ALLOW.value
+    assert "risk_score" in data
+    assert "risk_level" in data
+    assert "risk_factors" in data
+    assert "risk_explanation" in data
 
 
 @pytest.mark.asyncio

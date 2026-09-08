@@ -42,6 +42,29 @@ async def evaluate_action_endpoint(
         parameters=safe_parameters,
     )
 
+    # Emit Audit Event
+    from app.domain.audit import AuditEvent, AuditEventType
+    from app.services.audit_service import AuditService
+    
+    audit_svc = AuditService(db)
+    await audit_svc.log_event(
+        AuditEvent(
+            event_id=f"evt_{action.action_id}_recv",
+            event_type=AuditEventType.ACTION_RECEIVED,
+            timestamp=action.timestamp,
+            correlation_id=action.correlation_id,
+            action_id=action.action_id,
+            agent_id=action.agent_id,
+            user_id=action.user_id,
+            session_id=action.session_id,
+            tool_id=action.tool_id,
+            operation=action.operation,
+            resource=action.resource,
+            environment=action.environment,
+            redacted_parameters=AuditService.redact_parameters(action.parameters)
+        )
+    )
+
     # 4. Evaluate Action
     decision = await evaluate_action(action, db)
 
