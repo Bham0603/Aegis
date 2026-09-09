@@ -49,7 +49,7 @@ export default function AttackLabPage() {
     setErrors(prev => ({ ...prev, [scenarioId]: "" }));
     
     try {
-      const result = await api.post<RunResult>(`/api/v1/attack-lab/run/${scenarioId}`, {});
+      const result = await api.post<RunResult>(`/api/v1/attack-lab/runs`, { scenario_id: scenarioId });
       setResults(prev => ({ ...prev, [scenarioId]: result }));
     } catch (err) {
       setErrors(prev => ({ 

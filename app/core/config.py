@@ -44,7 +44,7 @@ class Settings(BaseSettings):
         # Map ENVIRONMENT to APP_ENV if present
         if "ENVIRONMENT" in data:
             data["APP_ENV"] = data["ENVIRONMENT"]
-        
+
         # If production, make CORS strict by default if not overridden
         env = data.get("APP_ENV", "development")
         if env == "production" and "CORS_ORIGINS" not in data:

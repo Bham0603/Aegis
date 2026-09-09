@@ -50,13 +50,13 @@ export default function ApprovalDetailPage({ params }: { params: Promise<{ id: s
     try {
       if (decision === "APPROVED") {
         await api.post(`/api/v1/approvals/${id}/approve`, {
-          approver_id: "current-user", // Backend will use current auth token for approver context ideally, but we pass what's required by schema
-          reason: actionReason || "Approved via Dashboard",
+          decision: "APPROVED",
+          comment: actionReason || "Approved via Dashboard",
         });
       } else {
         await api.post(`/api/v1/approvals/${id}/deny`, {
-          approver_id: "current-user",
-          reason: actionReason || "Denied via Dashboard",
+          decision: "DENIED",
+          comment: actionReason || "Denied via Dashboard",
         });
       }
       

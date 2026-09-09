@@ -14,6 +14,7 @@ X_API_KEY_NAME = "X-API-Key"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 x_api_key_header = APIKeyHeader(name=X_API_KEY_NAME, auto_error=False)
 
+
 async def get_current_principal(
     api_key_header_value: Annotated[str | None, Security(api_key_header)],
     x_api_key_header_value: Annotated[str | None, Security(x_api_key_header)],
@@ -27,8 +28,9 @@ async def get_current_principal(
 
     # Use X-API-Key if available, otherwise fallback to Authorization
     api_key = x_api_key_header_value or api_key_header_value
+    assert api_key is not None
     # Strip "Bearer " if present
-    if api_key and api_key.lower().startswith("bearer "):
+    if api_key.lower().startswith("bearer "):
         api_key = api_key[7:]
 
     auth_service = AuthService(db)

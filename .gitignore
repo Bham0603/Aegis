@@ -32,3 +32,10 @@ coverage/
 *.swo
 .DS_Store
 Thumbs.db
+
+# Extension
+extension/node_modules/
+extension/out/
+extension/.vscode-test/
+*.vsix
+

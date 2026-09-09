@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from "@/components/ui/GlassCard";
 import { StatusBadge } from "@/components/ui/Badge";
-import { Activity, ShieldCheck, ShieldAlert, CheckSquare } from "lucide-react";
+import { Activity, ShieldAlert, CheckSquare } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
