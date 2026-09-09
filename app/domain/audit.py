@@ -14,6 +14,12 @@ class AuditEventType(str, Enum):
     APPROVAL_EXPIRED = "APPROVAL_EXPIRED"
     SECURITY_EVALUATION_FAILED = "SECURITY_EVALUATION_FAILED"
 
+    # AI Security Events
+    AI_SECURITY_ANALYSIS_STARTED = "AI_SECURITY_ANALYSIS_STARTED"
+    AI_SECURITY_ANALYSIS_COMPLETED = "AI_SECURITY_ANALYSIS_COMPLETED"
+    AI_SECURITY_ANALYSIS_FAILED = "AI_SECURITY_ANALYSIS_FAILED"
+    AI_SECURITY_ANALYSIS_UNAVAILABLE = "AI_SECURITY_ANALYSIS_UNAVAILABLE"
+
 
 class AuditEvent(BaseModel):
     """
@@ -50,6 +56,14 @@ class AuditEvent(BaseModel):
 
     final_decision: str | None = None
     decision_reasons: list[str] = Field(default_factory=list)
+
+    # AI Security Provenance
+    ai_provider: str | None = None
+    ai_model: str | None = None
+    ai_threat_type: str | None = None
+    ai_severity: str | None = None
+    ai_confidence: float | None = None
+    ai_status: str | None = None
 
     # Action Payload (Redacted/Sanitized)
     redacted_parameters: dict[str, Any] | None = None

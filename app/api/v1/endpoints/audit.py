@@ -32,9 +32,7 @@ async def list_audit_events(
 
 
 @router.get("/events/{event_id}", response_model=AuditEvent)
-async def get_audit_event(
-    event_id: str, db: Annotated[AsyncSession, Depends(get_db)]
-):
+async def get_audit_event(event_id: str, db: Annotated[AsyncSession, Depends(get_db)]):
     audit_svc = AuditService(db)
     event = await audit_svc.get_event(event_id)
     if not event:

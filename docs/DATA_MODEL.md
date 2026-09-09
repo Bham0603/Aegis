@@ -27,7 +27,12 @@ Identifies a specific, unique request made by an agent.
 Identifies a trace across the entire distributed system.
 - *Purpose*: Used for Observability. While the `ACTION_ID` tracks the logical security request, the `CORRELATION_ID` ties together the API gateway request, the policy engine evaluation, the threat detector microservices, and the final tool execution.
 
+### `AUDIT_EVENT_ID`
+Identifies a unique audit event record.
+- *Relationship*: An `AuditEvent` references `ACTION_ID` and `CORRELATION_ID` by value (string), not by foreign key. This ensures historical audit records survive entity state changes (disabled agents, expired sessions, deleted tools).
+
 ## Relational Integrity Constraints
 - An `Action` must ALWAYS be linked to a valid `Session_ID`.
 - An `ApprovalRequest` must ALWAYS be explicitly bound to a single, immutable `ACTION_ID`.
 - A `SecurityDecision` must ALWAYS be 1:1 with an `ACTION_ID`.
+- An `AuditEvent` stores entity IDs as strings — NOT foreign keys — to ensure historical records persist when entities are disabled or deleted.

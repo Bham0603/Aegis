@@ -24,7 +24,7 @@ All incoming `Action` requests from agents must be strictly validated against re
 The Aegis codebase must never contain hardcoded secrets, API keys, or default passwords. All secrets must be injected via secure environment variables or secret management systems.
 
 ## 8. Structured and Redacted Audit Logs
-Every security decision must be logged as a structured event. To prevent data leakage, raw credentials, sensitive PII, or full sensitive payloads must be redacted or hashed before being written to the audit log.
+Every security decision must be logged as a structured event. To prevent data leakage, raw credentials, sensitive PII, or full sensitive payloads must be redacted before being written to the audit log. The current implementation replaces sensitive field values with `[REDACTED]`. Cryptographic hashing of redacted values (e.g., SHA-256) is planned for a future phase.
 
 ## 9. Testable Security
 Security controls are only as good as their tests. The codebase must include explicit policy tests, risk engine tests, and adversarial integration tests that prove unauthorized actions are correctly blocked.

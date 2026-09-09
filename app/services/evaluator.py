@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC
+from datetime import UTC, datetime
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -173,6 +173,18 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
         threat_engine = ThreatEngine()
         threat_assessment = threat_engine.evaluate(action, _context)
 
+        # 7.5. Evaluate AI Security Intelligence
+        from app.domain.ai_security import AISecurityStatus
+        from app.services.ai_security.engine import AISecurityIntelligence
+
+        # We pass audit_svc below, but we haven't initialized it yet, let's initialize audit_svc early
+        from app.services.audit_service import AuditService
+
+        audit_svc = AuditService(db)
+
+        ai_engine = AISecurityIntelligence(audit_svc=audit_svc)
+        ai_assessment = await ai_engine.evaluate(action, _context)
+
         # Map PolicyEffect to DecisionEnum
         decision_val = DecisionEnum.BLOCK
         if final_effect == "ALLOW":
@@ -196,7 +208,7 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
                     f"Risk Threshold: REVIEW required due to HIGH risk score ({risk_assessment.risk_score})."
                 )
 
-            # Threat thresholds
+            # Deterministic Threat thresholds
             if threat_assessment.overall_severity == ThreatSeverity.CRITICAL:
                 decision_val = DecisionEnum.BLOCK
                 reasons.append(
@@ -211,6 +223,32 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
                     "Threat Threshold: REVIEW required due to HIGH threat detection."
                 )
 
+        # 8.5 Apply AI Security Intelligence Precedence
+        if (
+            ai_assessment
+            and ai_assessment.status == AISecurityStatus.SUCCESS
+            and ai_assessment.threat_detected
+        ):
+            ai_severity = ai_assessment.severity
+            ai_confidence = ai_assessment.confidence or 0.0
+
+            # Define escalation threshold logic
+            if ai_severity == ThreatSeverity.CRITICAL and ai_confidence >= 0.75:
+                if decision_val in [DecisionEnum.ALLOW, DecisionEnum.REVIEW]:
+                    decision_val = DecisionEnum.BLOCK
+                    reasons.append(
+                        f"AI Security Intelligence: BLOCKED due to {ai_severity.value} AI threat assessment ({ai_assessment.threat_type.value}, confidence {ai_confidence:.2f})."
+                    )
+            elif (
+                ai_severity == ThreatSeverity.HIGH
+                and ai_confidence >= 0.75
+                and decision_val == DecisionEnum.ALLOW
+            ):
+                decision_val = DecisionEnum.REVIEW
+                reasons.append(
+                    f"AI Security Intelligence: REVIEW required due to {ai_severity.value} AI threat assessment ({ai_assessment.threat_type.value}, confidence {ai_confidence:.2f})."
+                )
+
         reasons.append(
             f"Risk Assessment: {risk_assessment.risk_level.value} ({risk_assessment.risk_score})"
         )
@@ -220,6 +258,13 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
             )
         else:
             reasons.append("Threat Assessment: NONE")
+
+        if ai_assessment and ai_assessment.threat_detected:
+            reasons.append(
+                f"AI Security Assessment: {ai_assessment.severity.value if ai_assessment.severity else 'UNKNOWN'}"
+            )
+        else:
+            reasons.append("AI Security Assessment: NONE")
 
         highest_threat = (
             threat_assessment.overall_severity.value
@@ -232,30 +277,34 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
         approval_request_id = None
 
         if approval_required:
-            from datetime import datetime
-
             from app.domain.approval import ApprovalStatus
             from app.services.approval_service import ApprovalService
             from app.services.fingerprint import generate_action_fingerprint
-            
+
             approval_svc = ApprovalService(db)
             action_fp = generate_action_fingerprint(action)
-            
+
             existing_req = await approval_svc.get_request_by_fingerprint(action_fp)
-            
+
             if existing_req:
                 if existing_req.status == ApprovalStatus.APPROVED:
-                    is_valid, _ = await approval_svc.verify_approval(action, existing_req.approval_request_id)
+                    is_valid, _ = await approval_svc.verify_approval(
+                        action, existing_req.approval_request_id
+                    )
                     if is_valid:
                         decision_val = DecisionEnum.ALLOW
                         approval_required = False
-                        reasons.append(f"REVIEW bypassed: Valid APPROVED request found ({existing_req.approval_request_id})")
-                        
+                        reasons.append(
+                            f"REVIEW bypassed: Valid APPROVED request found ({existing_req.approval_request_id})"
+                        )
+
                 elif existing_req.status == ApprovalStatus.PENDING:
                     if not existing_req.is_expired(datetime.now(UTC)):
                         approval_request_id = existing_req.approval_request_id
-                        reasons.append(f"Using existing PENDING request: {approval_request_id}")
-            
+                        reasons.append(
+                            f"Using existing PENDING request: {approval_request_id}"
+                        )
+
             if approval_required and not approval_request_id:
                 temp_dec = SecurityDecision(
                     action_id=action.action_id,
@@ -297,8 +346,7 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
 
         # Emit Audit Event
         from app.domain.audit import AuditEvent, AuditEventType
-        from app.services.audit_service import AuditService
-        audit_svc = AuditService(db)
+
         await audit_svc.log_event(
             AuditEvent(
                 event_id=f"evt_{action.action_id}_eval",
@@ -319,16 +367,28 @@ async def evaluate_action(action: Action, db: AsyncSession) -> SecurityDecision:
                 risk_score=risk_assessment.risk_score,
                 risk_level=risk_assessment.risk_level.value,
                 threat_severity=highest_threat,
-                approval_result="REQUESTED" if approval_required else ("BYPASSED" if approval_request_id else "NONE"),
+                ai_provider=ai_assessment.provider if ai_assessment else None,
+                ai_model=ai_assessment.model if ai_assessment else None,
+                ai_threat_type=ai_assessment.threat_type.value
+                if ai_assessment
+                else None,
+                ai_severity=ai_assessment.severity.value
+                if ai_assessment and ai_assessment.severity
+                else None,
+                ai_confidence=ai_assessment.confidence if ai_assessment else None,
+                ai_status=ai_assessment.status.value if ai_assessment else None,
+                approval_result="REQUESTED"
+                if approval_required
+                else ("BYPASSED" if approval_request_id else "NONE"),
                 final_decision=decision_val.value,
                 decision_reasons=reasons,
-                redacted_parameters=AuditService.redact_parameters(action.parameters)
+                redacted_parameters=AuditService.redact_parameters(action.parameters),
             )
         )
         return decision_final
 
-    except Exception as e:  # noqa: BLE001
-        logger.error(
+    except Exception as e:
+        logger.exception(
             "Security evaluation failure", error=str(e), action_id=action.action_id
         )
         # Fail-closed

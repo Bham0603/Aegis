@@ -62,6 +62,7 @@ async def test_approver_2(db: AsyncSession) -> ApproverDB:
 async def pending_approval_request(db: AsyncSession, mock_action: Action):
     service = ApprovalService(db)
     from app.domain.decision import DecisionEnum, SecurityDecision
+
     temp_dec = SecurityDecision(
         action_id=mock_action.action_id,
         correlation_id=mock_action.correlation_id,
@@ -72,6 +73,7 @@ async def pending_approval_request(db: AsyncSession, mock_action: Action):
     )
     # create request
     from app.domain.context import SecurityContext
+
     ctx = SecurityContext(action=mock_action)
     req = await service.create_request(mock_action, ctx, temp_dec)
     return req
@@ -88,11 +90,11 @@ async def test_approval_resolution_concurrency(
     Test that resolving an approval request concurrently results in exactly one success.
     """
     from tests.conftest import TestSessionLocal
-    
+
     async with TestSessionLocal() as session1, TestSessionLocal() as session2:
         svc1 = ApprovalService(session1)
         svc2 = ApprovalService(session2)
-        
+
         result1, result2 = await asyncio.gather(
             svc1.resolve(
                 pending_approval_request.approval_request_id,
@@ -106,12 +108,12 @@ async def test_approval_resolution_concurrency(
                 ApprovalStatus.APPROVED,
                 "Looks good 2",
             ),
-            return_exceptions=True
+            return_exceptions=True,
         )
-        
+
         success_count = 0
         failure_count = 0
-        
+
         for res in (result1, result2):
             if isinstance(res, Exception):
                 failure_count += 1
@@ -121,7 +123,6 @@ async def test_approval_resolution_concurrency(
                     success_count += 1
                 else:
                     failure_count += 1
-                    
+
         assert success_count == 1, "Exactly one approval should succeed"
         assert failure_count == 1, "Exactly one approval should fail or raise exception"
-

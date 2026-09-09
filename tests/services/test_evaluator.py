@@ -20,7 +20,9 @@ def make_action(
         timestamp=datetime.now(UTC),
         agent_id=str(uuid.uuid4()),
         session_id=str(uuid.uuid4()),
-        tool_id=str(uuid.uuid4()) if tool_id == "some_tool" else tool_id, # Or generate if needed, wait tool_id needs to be a UUID!
+        tool_id=str(uuid.uuid4())
+        if tool_id == "some_tool"
+        else tool_id,  # Or generate if needed, wait tool_id needs to be a UUID!
         operation=operation,
         environment=environment,
     )

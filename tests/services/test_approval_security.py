@@ -55,21 +55,25 @@ async def test_approval_self_approval_prevented(db: AsyncSession, mock_action: A
         timestamp=mock_action.timestamp,
         decision=DecisionEnum.REVIEW,
     )
-    req = await service.create_request(mock_action, SecurityContext(action=mock_action), temp_dec)
-    
+    req = await service.create_request(
+        mock_action, SecurityContext(action=mock_action), temp_dec
+    )
+
     # Try to approve using the agent's ID
     resolved, error = await service.resolve(
         req.approval_request_id,
-        mock_action.agent_id, # Self approval
+        mock_action.agent_id,  # Self approval
         ApprovalStatus.APPROVED,
     )
-    
+
     assert resolved is None
     assert error == "Self-approval is forbidden: agent cannot approve its own action"
 
 
 @pytest.mark.asyncio
-async def test_approval_fingerprint_mismatch(db: AsyncSession, mock_action: Action, test_approver: ApproverDB):
+async def test_approval_fingerprint_mismatch(
+    db: AsyncSession, mock_action: Action, test_approver: ApproverDB
+):
     service = ApprovalService(db)
     from app.domain.context import SecurityContext
     from app.domain.decision import DecisionEnum, SecurityDecision
@@ -80,8 +84,10 @@ async def test_approval_fingerprint_mismatch(db: AsyncSession, mock_action: Acti
         timestamp=mock_action.timestamp,
         decision=DecisionEnum.REVIEW,
     )
-    req = await service.create_request(mock_action, SecurityContext(action=mock_action), temp_dec)
-    
+    req = await service.create_request(
+        mock_action, SecurityContext(action=mock_action), temp_dec
+    )
+
     # Approve it
     resolved, error = await service.resolve(
         req.approval_request_id,
@@ -90,19 +96,23 @@ async def test_approval_fingerprint_mismatch(db: AsyncSession, mock_action: Acti
     )
     assert resolved is not None
     assert error is None
-    
+
     # Mutate the action
     mutated_action = mock_action.model_copy()
     mutated_action.resource = "/db/secrets"
-    
+
     # Verify should fail
-    is_valid, reason = await service.verify_approval(mutated_action, req.approval_request_id)
+    is_valid, reason = await service.verify_approval(
+        mutated_action, req.approval_request_id
+    )
     assert is_valid is False
     assert "fingerprint mismatch" in reason.lower()
 
 
 @pytest.mark.asyncio
-async def test_approval_expiration(db: AsyncSession, mock_action: Action, test_approver: ApproverDB):
+async def test_approval_expiration(
+    db: AsyncSession, mock_action: Action, test_approver: ApproverDB
+):
     service = ApprovalService(db)
     from app.domain.context import SecurityContext
     from app.domain.decision import DecisionEnum, SecurityDecision
@@ -114,8 +124,10 @@ async def test_approval_expiration(db: AsyncSession, mock_action: Action, test_a
         decision=DecisionEnum.REVIEW,
     )
     # Create with very short TTL
-    req = await service.create_request(mock_action, SecurityContext(action=mock_action), temp_dec, ttl_seconds=-1)
-    
+    req = await service.create_request(
+        mock_action, SecurityContext(action=mock_action), temp_dec, ttl_seconds=-1
+    )
+
     # Verify resolve should fail because it's expired
     resolved, error = await service.resolve(
         req.approval_request_id,

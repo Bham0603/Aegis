@@ -10,7 +10,9 @@ class AuditEventDB(Base):
     event_id: Mapped[str] = mapped_column(String, primary_key=True, index=True)
     event_version: Mapped[str] = mapped_column(String, nullable=False)
     event_type: Mapped[str] = mapped_column(String, nullable=False, index=True)
-    timestamp: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    timestamp: Mapped[DateTime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
 
     correlation_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     action_id: Mapped[str] = mapped_column(String, nullable=True, index=True)
@@ -28,6 +30,6 @@ class AuditEventDB(Base):
 
     # Provenance
     final_decision: Mapped[str] = mapped_column(String, nullable=True, index=True)
-    
+
     # Detailed payload containing redacted parameters, specific reasons, sub-engine provenance
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)

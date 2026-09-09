@@ -97,38 +97,38 @@ Cryptographically bind approvals to exact actions to prevent **action substituti
 
 ```python
 class ApprovalRequest:
-    approval_request_id: str           # "apr_abc123def456"
-    action_id: str                     # "act_xyz789"
-    action_fingerprint: str            # SHA-256 hex (64 chars)
+    approval_request_id: str  # "apr_abc123def456"
+    action_id: str  # "act_xyz789"
+    action_fingerprint: str  # SHA-256 hex (64 chars)
     correlation_id: str
-    
+
     # Identity
     agent_id: str
     user_id: str | None
     session_id: str
-    
+
     # Action context
     tool_id: str
     operation: str | None
     resource: str | None
     environment: str
-    
+
     # Lifecycle
-    status: ApprovalStatus             # PENDING, APPROVED, DENIED, EXPIRED, CANCELLED
+    status: ApprovalStatus  # PENDING, APPROVED, DENIED, EXPIRED, CANCELLED
     created_at: datetime
     expires_at: datetime
     resolved_at: datetime | None
-    
+
     # Approver
     required_approver_role: str | None
     approver_id: str | None
-    
+
     # Security context
     risk_score: int | None
     risk_level: str | None
     highest_threat_severity: str | None
     reasons: list[str]
-    
+
     # Resolution
     resolution_comment: str | None
 ```
@@ -139,7 +139,7 @@ class ApprovalRequest:
 class ApprovalDecision:
     approval_request_id: str
     approver_id: str
-    decision: ApprovalStatus          # Must be APPROVED or DENIED
+    decision: ApprovalStatus  # Must be APPROVED or DENIED
     comment: str | None
     timestamp: datetime
 ```
@@ -148,11 +148,11 @@ class ApprovalDecision:
 
 ```python
 class ApproverDB:
-    id: UUID                          # Primary key
-    approver_id: str                  # Business ID (unique, indexed)
+    id: UUID  # Primary key
+    approver_id: str  # Business ID (unique, indexed)
     display_name: str
     email: str | None
-    roles: dict | None                # JSONB (for future RBAC)
+    roles: dict | None  # JSONB (for future RBAC)
     is_active: bool
     created_at: datetime
     updated_at: datetime

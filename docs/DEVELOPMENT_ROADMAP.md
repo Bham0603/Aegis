@@ -81,10 +81,22 @@ Advanced ML/LLM-based threat detection remains deferred to Phase 11.
 - **Deliverables**: ApprovalRequest generation, expiration tracking, and decision consumption.
 - **Acceptance Criteria**: Approvals expire correctly; expired approvals result in a BLOCKED action.
 
-## PHASE 9: Audit + Observability
+## PHASE 9: Audit + Observability (COMPLETED)
 - **Objective**: Complete the forensic logging pipeline.
-- **Deliverables**: Structured JSON logs with payload redaction.
-- **Acceptance Criteria**: Sensitive arguments are hashed; logs contain full decision provenance.
+- **Deliverables**:
+  - AuditEvent domain model with full decision provenance
+  - AuditEventDB persistence model (SQLAlchemy)
+  - Alembic migration (33247aa65223)
+  - AuditService with redaction, persistence, and query
+  - ACTION_RECEIVED emission in Gateway
+  - ACTION_EVALUATED emission in Evaluator with 7-dimension provenance
+  - Read-only audit API (events, actions, correlations)
+  - Pagination and filtering
+  - Deterministic timestamp ordering
+  - Audit failure resilience (fail-safe, non-blocking)
+  - Redaction of sensitive parameters (password, token, secret, api_key, authorization)
+- **Acceptance Criteria**: 145 tests pass; sensitive arguments are redacted; logs contain full decision provenance.
+- **FUTURE**: Cryptographic hash chaining for tamper-evidence; SHA-256 hashing of redacted values; expanded sensitive keyword set.
 
 ## PHASE 10: Attack Lab
 - **Objective**: Build a synthetic environment to prove Aegis\'s effectiveness.

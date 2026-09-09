@@ -5,7 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 import app.models  # noqa: F401
 from app.api.deps import get_db
+from app.api.security import get_current_principal
+from app.core.redis import get_redis_client
 from app.db.base import Base
+from app.domain.auth import Principal, PrincipalType, Role
 from app.main import app as fastapi_app
 
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -32,9 +35,25 @@ async def override_get_db(async_session_maker):
         async with async_session_maker() as session:
             yield session
 
+    async def _override_get_current_principal():
+        return Principal(
+            principal_id="test_admin",
+            principal_type=PrincipalType.ADMIN,
+            roles=[Role.ADMIN, Role.AGENT, Role.APPROVER, Role.AUDITOR, Role.OPERATOR],
+        )
+
+    async def _override_get_redis_client():
+        return None
+
     fastapi_app.dependency_overrides[get_db] = _override_get_db
+    fastapi_app.dependency_overrides[get_current_principal] = (
+        _override_get_current_principal
+    )
+    fastapi_app.dependency_overrides[get_redis_client] = _override_get_redis_client
     yield
-    fastapi_app.dependency_overrides.clear()
+    fastapi_app.dependency_overrides.pop(get_db, None)
+    fastapi_app.dependency_overrides.pop(get_current_principal, None)
+    fastapi_app.dependency_overrides.pop(get_redis_client, None)
 
 
 @pytest_asyncio.fixture

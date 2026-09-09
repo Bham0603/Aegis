@@ -45,7 +45,7 @@ async def evaluate_action_endpoint(
     # Emit Audit Event
     from app.domain.audit import AuditEvent, AuditEventType
     from app.services.audit_service import AuditService
-    
+
     audit_svc = AuditService(db)
     await audit_svc.log_event(
         AuditEvent(
@@ -61,7 +61,7 @@ async def evaluate_action_endpoint(
             operation=action.operation,
             resource=action.resource,
             environment=action.environment,
-            redacted_parameters=AuditService.redact_parameters(action.parameters)
+            redacted_parameters=AuditService.redact_parameters(action.parameters),
         )
     )
 

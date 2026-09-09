@@ -10,7 +10,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_db
+from app.api.security import get_current_principal
 from app.domain.approval import ApprovalStatus
+from app.domain.auth import Principal, Role
 from app.services.approval_service import ApprovalService
 
 logger = structlog.get_logger(__name__)
@@ -146,6 +148,7 @@ async def approve_approval_request(
     approval_request_id: str,
     request: ApprovalDecisionRequest,
     db: AsyncSession = Depends(get_db),
+    principal: Principal = Depends(get_current_principal),
 ) -> ApprovalRequestResponse:
     """
     Approve a pending approval request.
@@ -175,10 +178,22 @@ async def approve_approval_request(
             detail="This endpoint only accepts APPROVED decisions. Use /deny for denials.",
         )
 
+    if Role.ADMIN not in principal.roles:
+        if request.approver_id and request.approver_id != principal.principal_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot approve on behalf of another user.",
+            )
+        # Force the approver ID to the authenticated principal
+        approver_id = principal.principal_id
+    else:
+        # Admin can approve on behalf if they provide an ID, otherwise default to themselves
+        approver_id = request.approver_id or principal.principal_id
+
     service = ApprovalService(db)
     resolved_approval, error = await service.resolve(
         approval_request_id=approval_request_id,
-        approver_id=request.approver_id,
+        approver_id=approver_id,
         decision=ApprovalStatus.APPROVED,
         comment=request.comment,
     )
@@ -234,6 +249,7 @@ async def deny_approval_request(
     approval_request_id: str,
     request: ApprovalDecisionRequest,
     db: AsyncSession = Depends(get_db),
+    principal: Principal = Depends(get_current_principal),
 ) -> ApprovalRequestResponse:
     """
     Deny a pending approval request.
@@ -262,10 +278,20 @@ async def deny_approval_request(
             detail="This endpoint only accepts DENIED decisions. Use /approve for approvals.",
         )
 
+    if Role.ADMIN not in principal.roles:
+        if request.approver_id and request.approver_id != principal.principal_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot deny on behalf of another user.",
+            )
+        approver_id = principal.principal_id
+    else:
+        approver_id = request.approver_id or principal.principal_id
+
     service = ApprovalService(db)
     resolved_approval, error = await service.resolve(
         approval_request_id=approval_request_id,
-        approver_id=request.approver_id,
+        approver_id=approver_id,
         decision=ApprovalStatus.DENIED,
         comment=request.comment,
     )
@@ -310,6 +336,3 @@ async def deny_approval_request(
         reasons=resolved_approval.reasons,
         resolution_comment=resolved_approval.resolution_comment,
     )
-
-
-

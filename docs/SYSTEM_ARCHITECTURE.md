@@ -60,8 +60,8 @@ Aggregates the outputs of the Policy, Risk, and Threat engines to formulate the 
 ### Approval Engine (Human-in-the-Loop)
 Manages the lifecycle of `REVIEW` decisions. Generates secure, time-bound, and scoped approval requests for human administrators. Ensures approvals cannot be replayed or hijacked.
 
-### Audit & Telemetry
-A high-performance, asynchronous logging system that records every evaluation, decision, and context to a structured data store. Handles payload redaction for sensitive arguments.
+### Audit & Observability
+An append-oriented event logging system that records every evaluation, decision, and context to a structured data store. Handles payload redaction for sensitive arguments. Stores full decision provenance (Permission, Trust, Policy, Risk, Threat, Approval, Final Decision) for forensic reconstruction. The audit API is read-only — no mutation endpoints exist for historical records.
 
 ## 3. Extensibility
 The architecture is designed to support:

@@ -17,6 +17,9 @@ export class ApiError extends Error {
   }
 }
 
+// Simple event emitter for auth failures to allow the auth context to handle redirects
+export const authEvents = new EventTarget();
+
 async function request<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -26,7 +29,14 @@ async function request<T>(
   const headers = new Headers(options.headers || {});
   headers.set("Content-Type", "application/json");
 
-  // TODO: Attach auth tokens in future phases
+  // Get the token from sessionStorage
+  if (typeof window !== 'undefined') {
+    const token = sessionStorage.getItem("aegis_api_key");
+    if (token) {
+      // Use Bearer token per backend support
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+  }
   
   const config: RequestInit = {
     ...options,
@@ -35,6 +45,13 @@ async function request<T>(
 
   try {
     const response = await fetch(url, config);
+
+    if (response.status === 401) {
+      // Dispatch an event so the AuthProvider can clear state and redirect
+      if (typeof window !== 'undefined') {
+        authEvents.dispatchEvent(new Event('unauthorized'));
+      }
+    }
 
     if (!response.ok) {
       let errorData;
@@ -70,6 +87,17 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
-    
-  // Add other methods as needed (PUT, DELETE, etc)
+
+  patch: <T>(endpoint: string, data: unknown, options?: RequestInit) =>
+    request<T>(endpoint, {
+      ...options,
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  delete: <T>(endpoint: string, options?: RequestInit) =>
+    request<T>(endpoint, {
+      ...options,
+      method: "DELETE",
+    }),
 };

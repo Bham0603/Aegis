@@ -140,7 +140,9 @@ async def test_get_request(
     )
 
     assert retrieved_approval is not None
-    assert retrieved_approval.approval_request_id == created_approval.approval_request_id
+    assert (
+        retrieved_approval.approval_request_id == created_approval.approval_request_id
+    )
     assert retrieved_approval.action_id == created_approval.action_id
     assert retrieved_approval.action_fingerprint == created_approval.action_fingerprint
 

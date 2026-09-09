@@ -297,14 +297,17 @@ class ApprovalService:
             )
         )
         update_result = await self.db.execute(update_stmt)
-        
+
         if update_result.rowcount == 0:  # type: ignore[attr-defined]
             logger.warning(
                 "approval_resolution_rejected",
                 approval_request_id=approval_request_id,
                 reason="concurrent_modification_or_already_resolved",
             )
-            return None, "Approval request was modified concurrently or is no longer pending"
+            return (
+                None,
+                "Approval request was modified concurrently or is no longer pending",
+            )
 
         await self.db.commit()
         await self.db.refresh(db_model)
