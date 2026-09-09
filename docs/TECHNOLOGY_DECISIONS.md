@@ -15,7 +15,7 @@ For Aegis to function as a professional security product, the technology stack m
 ## 3. Database: PostgreSQL
 *Alternatives considered: MongoDB, SQLite.*
 **Decision**: PostgreSQL.
-**Justification**: Security products require strict relational integrity. An `AuditEvent` must strictly link to a valid `Action`, `Policy`, and `User`. Document databases (MongoDB) lack the strict enforcement required for immutable audit trails. SQLite is insufficient for concurrent API throughput and highly available deployments.
+**Justification**: Security products require strict relational integrity. An `AuditEvent` must strictly link to a valid `Action`, `Policy`, and `User`. Document databases (MongoDB) lack the strict enforcement required for append-oriented audit trails. SQLite is insufficient for concurrent API throughput and highly available deployments.
 
 ## 4. Caching & Background Jobs: Redis & Celery (or ARQ)
 *Alternatives considered: In-memory only, RabbitMQ.*

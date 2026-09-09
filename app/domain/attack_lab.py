@@ -16,6 +16,7 @@ class AttackCategory(str, Enum):
     APPROVAL_BYPASS = "APPROVAL_BYPASS"
     TOOL_POISONING = "TOOL_POISONING"
     EXCESSIVE_AUTONOMY = "EXCESSIVE_AUTONOMY"
+    MCP_EXPLOIT = "MCP_EXPLOIT"
 
 
 class AttackRunStatus(str, Enum):

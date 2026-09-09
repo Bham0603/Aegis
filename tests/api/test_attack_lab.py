@@ -9,7 +9,7 @@ async def test_list_scenarios(async_client: AsyncClient):
     response = await async_client.get("/api/v1/attack-lab/scenarios")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 10
+    assert len(data) == 15
     assert data[0]["scenario_id"] == "direct_prompt_injection_01"
 
 

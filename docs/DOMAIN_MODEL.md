@@ -57,7 +57,7 @@ This document defines the core domain entities within the Aegis ecosystem.
 - **Purpose**: A human-in-the-loop coordination object generated when a decision is `REVIEW`. (See `APPROVAL_MODEL.md`)
 
 ### AuditEvent
-- **Purpose**: An immutable record of an Action and its resulting SecurityDecision. (See `AUDIT_MODEL.md`)
+- **Purpose**: An append-oriented record of an Action and its resulting SecurityDecision. (See `AUDIT_MODEL.md`)
 
 ### SecurityIncident
 - **Purpose**: An aggregation of AuditEvents or ThreatDetections that cross a critical threshold, requiring SecOps intervention.

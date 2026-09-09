@@ -173,6 +173,12 @@ class MockEnvironmentSeeder:
                     },
                 },
                 {
+                    "effect": "REVIEW",
+                    "condition": {
+                        "tool_id": {"eq": "mcp://untrusted-server/sensitive_tool"},
+                    },
+                },
+                {
                     "effect": "ALLOW",
                     "condition": {},
                 },

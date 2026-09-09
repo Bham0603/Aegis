@@ -5,7 +5,7 @@ from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.status import (
-    HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+    HTTP_413_CONTENT_TOO_LARGE,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
@@ -21,7 +21,7 @@ class MaxBodySizeMiddleware(BaseHTTPMiddleware):
         content_length = request.headers.get("content-length")
         if content_length and int(content_length) > self.max_upload_size:
             return JSONResponse(
-                status_code=HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                status_code=HTTP_413_CONTENT_TOO_LARGE,
                 content={"detail": "Request body too large"},
             )
         return await call_next(request)
