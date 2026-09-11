@@ -27,6 +27,26 @@ describe('API Client', () => {
       json: async () => ({ error: 'Internal error' })
     } as Response);
 
-    await expect(api.get('/error-endpoint')).rejects.toThrow('API request failed with status 500');
+    await expect(api.get('/error-endpoint')).rejects.toThrow('HTTP 500');
+  });
+
+  it('extracts detail message when present', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      json: async () => ({ detail: 'Policy with this name already exists.' })
+    } as Response);
+
+    await expect(api.get('/error-endpoint')).rejects.toThrow('Policy with this name already exists.');
+  });
+
+  it('dispatches unauthorized event on 401', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: async () => ({ detail: 'Unauthorized' })
+    } as Response);
+
+    await expect(api.get('/forbidden')).rejects.toMatchObject({ status: 401 });
   });
 });

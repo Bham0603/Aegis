@@ -7,9 +7,8 @@ from datetime import UTC, datetime
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.base import Base
 from app.domain.action import Action
 from app.domain.approval import ApprovalStatus
 from app.domain.context import SecurityContext
@@ -19,27 +18,7 @@ from app.services.approval_service import ApprovalService
 
 
 @pytest_asyncio.fixture
-async def test_db():
-    """Create a test database session."""
-    from app.db.session import engine
-
-    # Create tables
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    async_session_factory = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session_factory() as session:
-        yield session
-
-    # Clean up
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest_asyncio.fixture
-async def approver(test_db: AsyncSession):
+async def approver(db: AsyncSession):
     """Create a test approver."""
     approver = ApproverDB(
         approver_id="test_approver",
@@ -47,9 +26,9 @@ async def approver(test_db: AsyncSession):
         email="test@example.com",
         is_active=True,
     )
-    test_db.add(approver)
-    await test_db.commit()
-    await test_db.refresh(approver)
+    db.add(approver)
+    await db.commit()
+    await db.refresh(approver)
     return approver
 
 
@@ -90,9 +69,9 @@ def mock_security_context(mock_action: Action):
 
 
 @pytest_asyncio.fixture
-async def approval_service(test_db: AsyncSession):
+async def approval_service(db: AsyncSession):
     """Create an ApprovalService instance."""
-    return ApprovalService(test_db)
+    return ApprovalService(db)
 
 
 @pytest.mark.asyncio
@@ -255,7 +234,7 @@ async def test_resolve_rejects_inactive_approver(
     mock_action: Action,
     mock_security_context: SecurityContext,
     mock_security_decision: SecurityDecision,
-    test_db: AsyncSession,
+    db: AsyncSession,
 ):
     """Test that inactive approvers cannot resolve approvals."""
     # Create an inactive approver
@@ -265,8 +244,8 @@ async def test_resolve_rejects_inactive_approver(
         email="inactive@example.com",
         is_active=False,
     )
-    test_db.add(inactive_approver)
-    await test_db.commit()
+    db.add(inactive_approver)
+    await db.commit()
 
     # Create a request
     created_approval = await approval_service.create_request(
@@ -466,7 +445,7 @@ async def test_verify_approval_denied(
 @pytest.mark.asyncio
 async def test_create_approver(
     approval_service: ApprovalService,
-    test_db: AsyncSession,
+    db: AsyncSession,
 ):
     """Test creating an approver."""
     from sqlalchemy import text
@@ -485,7 +464,7 @@ async def test_create_approver(
 
     # Verify it was persisted
     stmt = text("SELECT * FROM approver WHERE approver_id = 'new_approver'")
-    result = await test_db.execute(stmt)
+    result = await db.execute(stmt)
     record = result.fetchone()
     assert record is not None
     assert record.approver_id == "new_approver"

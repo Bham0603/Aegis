@@ -89,9 +89,9 @@ async def test_approval_resolution_concurrency(
     """
     Test that resolving an approval request concurrently results in exactly one success.
     """
-    from tests.conftest import TestSessionLocal
+    from app.db.session import SessionLocal
 
-    async with TestSessionLocal() as session1, TestSessionLocal() as session2:
+    async with SessionLocal() as session1, SessionLocal() as session2:
         svc1 = ApprovalService(session1)
         svc2 = ApprovalService(session2)
 

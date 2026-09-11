@@ -19,11 +19,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/** Routes that require an authenticated session. */
+const PROTECTED_PREFIXES = ["/dashboard"];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+
+  const isProtectedRoute = (path: string) =>
+    PROTECTED_PREFIXES.some(
+      (prefix) => path === prefix || path.startsWith(`${prefix}/`)
+    );
 
   const logout = useCallback(() => {
     sessionStorage.removeItem("aegis_api_key");
@@ -45,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = sessionStorage.getItem("aegis_api_key");
       if (!token) {
         setLoading(false);
-        if (pathname !== "/login") {
+        if (isProtectedRoute(pathname)) {
           router.push("/login");
         }
         return;
@@ -54,8 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         // Fetch a protected endpoint to validate the token
         await api.get("/api/v1/policies");
-        
-        // For now, mock the user context based on success. 
+
+        // For now, mock the user context based on success.
         // In a real app we'd decode a JWT or hit a /me endpoint.
         setUser({
           id: "current-user",
@@ -65,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Auth init failed:", error);
         sessionStorage.removeItem("aegis_api_key");
-        if (pathname !== "/login") {
+        if (isProtectedRoute(pathname)) {
           router.push("/login");
         }
       } finally {
@@ -86,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name: "Aegis Admin",
         role: "ADMIN",
       });
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       sessionStorage.removeItem("aegis_api_key");
       throw error;

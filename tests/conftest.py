@@ -1,36 +1,38 @@
+import os
+
+# Guarantee test environment isolation BEFORE any application modules load
+os.environ["ENVIRONMENT"] = "test"
+os.environ["POSTGRES_SERVER"] = "sqlite"
+os.environ["POSTGRES_DB"] = "aegis_test.db"
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.models  # noqa: F401
 from app.api.deps import get_db
 from app.api.security import get_current_principal
 from app.core.config import settings
 from app.db.base import Base
+from app.db.session import SessionLocal, engine
 from app.domain.auth import Principal, PrincipalType, Role
 from app.main import app as fastapi_app
 
 # Disable rate limiting in tests
 settings.RATE_LIMIT_ENABLED = False
 
-# Create a fresh memory database for each test session or function
-test_engine = create_async_engine(
-    "sqlite+aiosqlite:///:memory:", echo=False, future=True
-)
-TestSessionLocal = async_sessionmaker(
-    bind=test_engine, class_=AsyncSession, expire_on_commit=False
-)
-
-
 @pytest_asyncio.fixture
 async def db():
-    async with test_engine.begin() as conn:
+    # Safely verify we are operating on the test database
+    assert "test" in str(engine.url.database), "FATAL: Test suite attempted to connect to non-test database!"
+    
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    async with TestSessionLocal() as session:
+    async with SessionLocal() as session:
         yield session
 
-    async with test_engine.begin() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
 

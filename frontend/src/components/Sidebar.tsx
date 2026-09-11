@@ -1,84 +1,214 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { 
-  ShieldAlert, 
-  LayoutDashboard, 
+import {
+  LayoutDashboard,
   Activity,
+  ShieldAlert,
   CheckSquare,
   Users,
   Wrench,
   FileText,
   History,
-  FlaskConical
+  FlaskConical,
+  Shield,
+  Lock,
+  BarChart3,
+  Sparkles,
+  Puzzle,
+  Settings,
+  UserCircle,
+  Menu,
+  X,
 } from "lucide-react";
 
-const navigation = [
-  { name: "Overview", href: "/", icon: LayoutDashboard },
-  { name: "Action Explorer", href: "/actions", icon: Activity },
-  { name: "Threat Center", href: "/threats", icon: ShieldAlert },
-  { name: "Approvals", href: "/approvals", icon: CheckSquare },
-  { name: "Agent Registry", href: "/agents", icon: Users },
-  { name: "Tool Registry", href: "/tools", icon: Wrench },
-  { name: "Policies", href: "/policies", icon: FileText },
-  { name: "Audit Logs", href: "/audit", icon: History },
-  { name: "Attack Lab", href: "/attack-lab", icon: FlaskConical },
+const SECTIONS = [
+  {
+    label: "Monitor",
+    items: [
+      { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Live Activity", href: "/dashboard/audit", icon: Activity },
+      { name: "Threats", href: "/dashboard/threats", icon: ShieldAlert },
+      { name: "Approvals", href: "/dashboard/approvals", icon: CheckSquare },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      { name: "Agents", href: "/dashboard/agents", icon: Users },
+      { name: "Tools", href: "/dashboard/tools", icon: Wrench },
+      { name: "Policies", href: "/dashboard/policies", icon: FileText },
+      { name: "Action Explorer", href: "/dashboard/actions", icon: History },
+    ],
+  },
+  {
+    label: "Investigate",
+    items: [
+      { name: "Sensitive Data", href: "/dashboard/sensitive-data", icon: Lock },
+      { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
+      { name: "Copilot", href: "/dashboard/copilot", icon: Sparkles },
+    ],
+  },
+  {
+    label: "Extensions",
+    items: [
+      { name: "Extension", href: "/dashboard/extension", icon: Puzzle },
+      { name: "Attack Lab", href: "/dashboard/attack-lab", icon: FlaskConical },
+    ],
+  },
+];
+
+const FOOTER_ITEMS = [
+  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Account", href: "/dashboard/account", icon: UserCircle },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  if (isLoginPage) return null;
+  const nav = (
+    <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-5" aria-label="Dashboard navigation">
+      {SECTIONS.map((section) => (
+        <div key={section.label}>
+          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground-muted/70">
+            {section.label}
+          </p>
+          <ul className="space-y-0.5">
+            {section.items.map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/dashboard" && pathname?.startsWith(`${item.href}/`));
+              return (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-card-elevated text-foreground border border-border-strong"
+                        : "text-foreground-muted hover:bg-card hover:text-foreground"
+                    )}
+                  >
+                    <item.icon
+                      className={cn(
+                        "mr-3 h-4 w-4 shrink-0 transition-colors",
+                        isActive ? "text-accent" : "text-foreground-muted group-hover:text-foreground"
+                      )}
+                      aria-hidden="true"
+                    />
+                    {item.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  );
 
-  return (
-    <aside className="fixed inset-y-0 left-0 w-64 glass-panel border-r border-white/10 z-50 flex flex-col">
-      <div className="flex h-16 shrink-0 items-center px-6 border-b border-white/10">
-        <ShieldAlert className="h-8 w-8 text-blue-500 mr-3" />
-        <span className="text-xl font-bold tracking-tight text-white">AEGIS</span>
-      </div>
-      
-      <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6">
-        <nav className="flex-1 space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
-            
-            return (
+  const footer = (
+    <div className="border-t border-border-base p-3">
+      <ul className="space-y-0.5">
+        {FOOTER_ITEMS.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <li key={item.name}>
               <Link
-                key={item.name}
                 href={item.href}
+                onClick={() => setMobileOpen(false)}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
-                  isActive 
-                    ? "bg-white/10 text-white shadow-sm border border-white/5" 
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                  "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-card-elevated text-foreground"
+                    : "text-foreground-muted hover:bg-card hover:text-foreground"
                 )}
               >
-                <item.icon
-                  className={cn(
-                    "mr-3 h-5 w-5 flex-shrink-0 transition-colors duration-200",
-                    isActive ? "text-blue-400" : "text-zinc-500 group-hover:text-zinc-300"
-                  )}
-                  aria-hidden="true"
-                />
+                <item.icon className="mr-3 h-4 w-4 shrink-0" aria-hidden="true" />
                 {item.name}
               </Link>
-            );
-          })}
-        </nav>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="panel mt-3 p-3 text-center">
+        <p className="font-mono text-[10px] leading-relaxed text-foreground-muted">
+          AEGIS SECURITY ENGINE
+          <br />
+          <span className="text-allow">SYSTEM ACTIVE</span>
+        </p>
       </div>
-      
-      <div className="p-4 border-t border-white/10">
-        <div className="glass-card p-4 flex items-center justify-center">
-           <div className="text-xs text-zinc-500 font-mono text-center">
-             AEGIS SECURITY ENGINE<br />
-             <span className="text-emerald-500">SYSTEM ACTIVE</span>
-           </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar with hamburger */}
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-border-base bg-background/95 px-4 backdrop-blur-sm lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open navigation"
+          className="rounded-md p-2 text-foreground-muted hover:text-foreground"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <span className="inline-flex items-center gap-2 text-base font-bold tracking-tight">
+          <Shield className="h-4 w-4 text-accent" aria-hidden="true" />
+          AEGIS
+        </span>
+        <span className="w-9" aria-hidden="true" />
+      </div>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/70"
+            aria-hidden="true"
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside
+            role="dialog"
+            aria-label="Dashboard navigation"
+            className="absolute inset-y-0 left-0 flex w-72 flex-col border-r border-border-base bg-card"
+          >
+            <div className="flex h-14 shrink-0 items-center justify-between border-b border-border-base px-4">
+              <span className="inline-flex items-center gap-2 text-base font-bold tracking-tight">
+                <Shield className="h-4 w-4 text-accent" aria-hidden="true" />
+                AEGIS
+              </span>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close navigation"
+                className="rounded-md p-2 text-foreground-muted hover:text-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {nav}
+            {footer}
+          </aside>
         </div>
-      </div>
-    </aside>
+      )}
+
+      {/* Desktop sidebar */}
+      <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-border-base bg-card lg:flex">
+        <div className="flex h-16 shrink-0 items-center border-b border-border-base px-6">
+          <Shield className="h-6 w-6 text-accent mr-2.5" aria-hidden="true" />
+          <span className="text-lg font-bold tracking-tight text-foreground">AEGIS</span>
+        </div>
+        {nav}
+        {footer}
+      </aside>
+    </>
   );
 }

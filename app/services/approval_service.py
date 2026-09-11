@@ -154,6 +154,31 @@ class ApprovalService:
 
         return self._to_domain(db_model)
 
+    async def list_requests(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        status_filter: str | None = None,
+    ) -> list[ApprovalRequest]:
+        """
+        List approval requests with optional status filter, ordered newest first.
+
+        Args:
+            skip: Number of records to skip for pagination
+            limit: Maximum records to return
+            status_filter: Optional status string to filter by (e.g. "PENDING")
+
+        Returns:
+            List of ApprovalRequest domain objects
+        """
+        from sqlalchemy import desc as sa_desc
+        stmt = select(ApprovalRequestDB).order_by(sa_desc(ApprovalRequestDB.created_at))
+        if status_filter:
+            stmt = stmt.where(ApprovalRequestDB.status == status_filter)
+        stmt = stmt.offset(skip).limit(min(limit, 200))
+        result = await self.db.execute(stmt)
+        return [self._to_domain(row) for row in result.scalars().all()]
+
     async def get_request_by_fingerprint(
         self, action_fingerprint: str
     ) -> ApprovalRequest | None:

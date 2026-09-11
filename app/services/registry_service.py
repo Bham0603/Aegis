@@ -57,6 +57,13 @@ class RegistryService:
         return user
 
     # --- Agent Management ---
+    async def list_agents(
+        self, skip: int = 0, limit: int = 100
+    ) -> Sequence[Agent]:
+        stmt = select(Agent).offset(skip).limit(limit)
+        result = await self.db.execute(stmt)
+        return result.scalars().all()
+
     async def create_agent(self, agent_in: AgentCreate) -> Agent:
         agent = Agent(
             name=agent_in.name,
@@ -86,6 +93,19 @@ class RegistryService:
         return agent
 
     # --- Tool Management ---
+    async def list_tools(
+        self, skip: int = 0, limit: int = 100
+    ) -> Sequence[Tool]:
+        from sqlalchemy.orm import selectinload
+        stmt = (
+            select(Tool)
+            .options(selectinload(Tool.operations))
+            .offset(skip)
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalars().all()
+
     async def create_tool(self, tool_in: ToolCreate) -> Tool:
         tool = Tool(
             canonical_name=tool_in.canonical_name,

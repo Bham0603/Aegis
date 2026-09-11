@@ -1,10 +1,14 @@
 import asyncio
+import logging
 import os
 import sys
-import logging
 
 from aegis_sdk.client import AegisClient
-from aegis_sdk.errors import ActionBlockedError, ApprovalRequiredError, AegisUnavailableError
+from aegis_sdk.errors import (
+    ActionBlockedError,
+    AegisUnavailableError,
+    ApprovalRequiredError,
+)
 
 # Add the parent directory to the path so we can import the scenarios
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))

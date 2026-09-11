@@ -84,6 +84,56 @@ class ApproverResponse(BaseModel):
 
 
 @router.get(
+    "/",
+    response_model=list[ApprovalRequestResponse],
+    summary="List approval requests",
+)
+async def list_approval_requests(
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    status: str | None = None,
+) -> list[ApprovalRequestResponse]:
+    """
+    List approval requests, optionally filtered by status.
+
+    Args:
+        skip: Pagination offset
+        limit: Maximum number of results
+        status: Optional filter (PENDING, APPROVED, DENIED, EXPIRED)
+    """
+    service = ApprovalService(db)
+    approvals = await service.list_requests(skip=skip, limit=limit, status_filter=status)
+
+    return [
+        ApprovalRequestResponse(
+            approval_request_id=a.approval_request_id,
+            action_id=a.action_id,
+            correlation_id=a.correlation_id,
+            agent_id=a.agent_id,
+            user_id=a.user_id,
+            session_id=a.session_id,
+            tool_id=a.tool_id,
+            operation=a.operation,
+            resource=a.resource,
+            environment=a.environment,
+            status=a.status.value,
+            required_approver_role=a.required_approver_role,
+            approver_id=a.approver_id,
+            created_at=a.created_at,
+            expires_at=a.expires_at,
+            resolved_at=a.resolved_at,
+            risk_score=a.risk_score,
+            risk_level=a.risk_level,
+            highest_threat_severity=a.highest_threat_severity,
+            reasons=a.reasons,
+            resolution_comment=a.resolution_comment,
+        )
+        for a in approvals
+    ]
+
+
+@router.get(
     "/{approval_request_id}",
     response_model=ApprovalRequestResponse,
     summary="Get approval request by ID",

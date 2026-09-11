@@ -18,6 +18,21 @@ from app.services.registry_service import RegistryService
 router = APIRouter()
 
 
+@router.get("/", response_model=list[AgentResponse])
+async def list_agents(
+    *,
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """
+    List all registered agents.
+    """
+    registry_service = RegistryService(db)
+    agents = await registry_service.list_agents(skip=skip, limit=limit)
+    return agents
+
+
 @router.post("/", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
 async def create_agent(
     *,

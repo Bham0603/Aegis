@@ -14,8 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aegis Security Engine",
-  description: "Runtime Security & Governance for AI Agents",
+  title: {
+    default: "Aegis — The Security Layer for AI Agents",
+    template: "%s · Aegis",
+  },
+  description:
+    "Aegis is an intelligent security layer for autonomous AI agents — detecting prompt injection, unsafe actions, sensitive-data exposure and suspicious behavior before they become incidents.",
 };
 
 export default function RootLayout({
@@ -26,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white selection:bg-blue-500/30`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <AuthProvider>
           {children}

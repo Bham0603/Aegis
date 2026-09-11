@@ -9,11 +9,22 @@
 ### Fully Implemented Components
 
 - **Backend (FastAPI)**: Deterministic Policy Engine, Permission & Trust Models, Risk Assessment, Human-in-the-loop Approvals, Audit Logging, AI Threat Intelligence.
-- **Frontend (Next.js)**: Security Command Center for managing approvals, viewing audits, and configuring policies.
+- **Frontend (Next.js)**: Public website (`/`) + Security Command Center (`/dashboard`) with live activity, threats, approvals, agents, tools, policies, sensitive-data findings, reports, Copilot and extension status.
 - **Python SDK**: Native `aegis_sdk` for integrating Python-based agents with the Aegis backend.
 - **MCP Security Gateway**: A wrapper for the Model Context Protocol (MCP) to enforce zero-trust policies on any MCP server without modifying the server itself.
 - **VS Code Extension**: Developer tooling to manage security profiles and handle approvals directly in the IDE.
 - **Attack Lab**: A built-in simulation environment for validating security controls against malicious payloads.
+
+### Frontend Routes
+
+| Route | Purpose |
+|---|---|
+| `/` | Marketing landing page (hero security console, attack simulation, product previews) |
+| `/product` `/how-it-works` `/security` `/extension` `/pricing` `/docs` | Public product pages |
+| `/login` `/signup` | API-key sign-in and access requests |
+| `/dashboard` | Overview, live activity, threats, approvals, agents, tools, policies, action explorer, sensitive data, reports, Copilot, extension status, attack lab, settings, account |
+
+Demo data shown on marketing pages is isolated in `frontend/src/lib/demo-data.ts`. The dashboard reads only from the live Aegis API. The Copilot is a deterministic analyst over real audit events until a `/copilot` backend endpoint exists.
 
 ## Why Aegis?
 
@@ -41,7 +52,7 @@ To experience the full power of Aegis, you can run the end-to-end demo script.
    npm install
    npm run dev
    ```
-   Navigate to `http://localhost:3000` to view the security console.
+   Navigate to `http://localhost:3000` for the website, or `http://localhost:3000/dashboard` for the security console (requires an API key from `python -m app.cli bootstrap-admin`).
 
 ## Documentation
 

@@ -1,39 +1,20 @@
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.models  # noqa: F401
 from app.api.deps import get_db
 from app.api.security import get_current_principal
 from app.core.redis import get_redis_client
-from app.db.base import Base
 from app.domain.auth import Principal, PrincipalType, Role
 from app.main import app as fastapi_app
 
-SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-
 
 @pytest_asyncio.fixture
-async def async_session_maker():
-    engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=False)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    session_maker = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    yield session_maker
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest_asyncio.fixture
-async def override_get_db(async_session_maker):
+async def override_get_db(db: AsyncSession):
     async def _override_get_db():
-        async with async_session_maker() as session:
-            yield session
+        yield db
 
     async def _override_get_current_principal():
         return Principal(

@@ -1,9 +1,15 @@
 import asyncio
 import os
-import json
+
 from aegis_sdk.client import AegisClient
-from aegis_sdk.errors import ActionBlockedError, ApprovalRequiredError, AegisUnavailableError
+from aegis_sdk.errors import (
+    ActionBlockedError,
+    AegisUnavailableError,
+    ApprovalRequiredError,
+)
+
 from app.services.attack_lab.scenarios import SCENARIOS
+
 
 async def run_scenario(client, scenario):
     print(f"\n[{scenario.scenario_id}] {scenario.name}")

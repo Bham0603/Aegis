@@ -11,6 +11,21 @@ from app.services.registry_service import RegistryService
 router = APIRouter()
 
 
+@router.get("/", response_model=list[ToolResponse])
+async def list_tools(
+    *,
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """
+    List all registered tools.
+    """
+    registry_service = RegistryService(db)
+    tools = await registry_service.list_tools(skip=skip, limit=limit)
+    return tools
+
+
 @router.post("/", response_model=ToolResponse, status_code=status.HTTP_201_CREATED)
 async def create_tool(
     *,

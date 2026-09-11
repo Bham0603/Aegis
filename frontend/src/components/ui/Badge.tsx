@@ -29,13 +29,18 @@ export function Badge({ className, variant = "default", ...props }: BadgeProps) 
   );
 }
 
-export function StatusBadge({ status, className }: { status: string; className?: string }) {
+export function StatusBadge({ status, className }: { status?: string | null; className?: string }) {
   let variant: BadgeVariant = "default";
+  
+  if (!status || typeof status !== 'string') {
+    return <Badge variant="default" className={className}>UNKNOWN</Badge>;
+  }
+
   const s = status.toUpperCase();
   
-  if (s === "ALLOW" || s === "APPROVED" || s === "ACTIVE" || s === "SAFE") variant = "allow";
+  if (s === "ALLOW" || s === "APPROVED" || s === "ACTIVE" || s === "SAFE" || s === "PASS") variant = "allow";
   if (s === "REVIEW" || s === "PENDING" || s === "WARN") variant = "review";
-  if (s === "BLOCK" || s === "DENIED" || s === "INACTIVE" || s === "MALICIOUS") variant = "block";
+  if (s === "BLOCK" || s === "DENIED" || s === "INACTIVE" || s === "MALICIOUS" || s === "FAIL" || s === "ERROR") variant = "block";
   if (s === "CRITICAL") variant = "critical";
 
   return <Badge variant={variant} className={className}>{status}</Badge>;

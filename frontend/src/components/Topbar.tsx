@@ -1,50 +1,95 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { usePathname } from "next/navigation";
-import { LogOut, ShieldCheck, Server } from "lucide-react";
+import { api, ENDPOINTS } from "@/lib/api";
+import { LogOut, Server } from "lucide-react";
+import { StatusDot } from "@/components/marketing/StatusDot";
 
+type ApiStatus = "checking" | "online" | "offline";
+
+/**
+ * Dashboard topbar. The ● Protected indicator is driven by a real
+ * health check against the configured backend, not a static badge.
+ */
 export function Topbar() {
   const { user, logout } = useAuth();
-  const pathname = usePathname();
-  
-  if (pathname === "/login") return null;
+  const [apiStatus, setApiStatus] = useState<ApiStatus>("checking");
+
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        await api.get<{ status: string }>(ENDPOINTS.health());
+        if (!cancelled) setApiStatus("online");
+      } catch {
+        if (!cancelled) setApiStatus("offline");
+      }
+    };
+    check();
+    const interval = setInterval(check, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-white/10 glass-panel px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 justify-between items-center">
-        
-        {/* Left Section - Environment / Status */}
-        <div className="flex items-center gap-x-4">
-          <div className="flex items-center gap-x-2 text-sm text-zinc-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-            <Server className="h-4 w-4" />
-            <span className="font-mono text-xs uppercase tracking-wider">production</span>
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-border-base bg-background/90 px-4 shadow-sm backdrop-blur-sm sm:gap-x-6 sm:px-6 lg:px-8">
+      <div className="flex flex-1 items-center justify-between gap-x-4 self-stretch lg:gap-x-6">
+        {/* Left: environment + protection status */}
+        <div className="flex items-center gap-x-3">
+          <div className="hidden items-center gap-x-2 rounded-full border border-border-base bg-card px-3 py-1.5 text-foreground-muted sm:flex">
+            <Server className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="font-mono text-[10px] uppercase tracking-wider">
+              {process.env.NEXT_PUBLIC_API_URL
+                ? new URL(process.env.NEXT_PUBLIC_API_URL).host
+                : "localhost:8000"}
+            </span>
           </div>
-          <div className="flex items-center gap-x-2 text-sm text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
-            <ShieldCheck className="h-4 w-4" />
-            <span className="font-medium text-xs uppercase tracking-wider">Protected</span>
+          <div
+            className="flex items-center gap-x-2 rounded-full border border-allow/30 bg-allow/10 px-3 py-1.5"
+            role="status"
+            aria-label={
+              apiStatus === "online"
+                ? "Backend online, environment protected"
+                : apiStatus === "offline"
+                  ? "Backend unreachable"
+                  : "Checking backend connection"
+            }
+          >
+            <StatusDot
+              tone={apiStatus === "offline" ? "block" : "safe"}
+              pulse={apiStatus !== "offline"}
+            />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-allow">
+              {apiStatus === "online"
+                ? "Protected"
+                : apiStatus === "offline"
+                  ? "API Offline"
+                  : "Checking"}
+            </span>
           </div>
         </div>
 
-        {/* Right Section - User */}
+        {/* Right: user */}
         <div className="flex items-center gap-x-4 lg:gap-x-6">
-          <div className="hidden sm:flex sm:flex-col sm:items-end">
-            <span className="text-sm font-semibold leading-6 text-white" aria-hidden="true">
+          <div className="hidden flex-col items-end sm:flex">
+            <span className="text-sm font-semibold leading-5 text-foreground">
               {user?.name || "Admin"}
             </span>
-            <span className="text-xs leading-5 text-zinc-400" aria-hidden="true">
+            <span className="font-mono text-[10px] uppercase leading-4 tracking-wider text-foreground-muted">
               {user?.role || "Operator"}
             </span>
           </div>
-          
-          <div className="h-8 w-px bg-white/10" aria-hidden="true" />
-          
+
+          <div className="h-8 w-px bg-border-base" aria-hidden="true" />
+
           <button
             onClick={logout}
-            className="flex items-center gap-x-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+            className="flex items-center gap-x-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:block">Sign out</span>
           </button>
         </div>
