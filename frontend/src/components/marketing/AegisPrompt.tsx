@@ -106,67 +106,70 @@ export function AegisPrompt() {
 
   return (
     <div
-      className="aegis-prompt group relative mx-auto w-full max-w-[540px]"
+      className="aegis-prompt group relative mx-auto w-full max-w-[740px]"
       tabIndex={0}
       role="group"
       aria-label="Aegis prompt — example questions you can ask about your agents' security"
     >
-      {/* Broad atmospheric glow behind the prompt (same lighting system
-          as the perimeter highlight — lime, low opacity, fading outward). */}
+      {/* Broad atmospheric glow behind the prompt */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-x-6 -inset-y-8 rounded-full bg-accent/[0.06] blur-3xl sm:-inset-x-14 sm:-inset-y-12"
+        className="pointer-events-none absolute -inset-x-6 -inset-y-8 rounded-full bg-accent/[0.04] blur-3xl sm:-inset-x-20 sm:-inset-y-16"
       />
 
-      {/* Soft blurred copy of the perimeter highlight — a small glow
-          trailing the crisp line. Painted under the surface so its
-          inner bleed never shows; outward bleed reads as a halo. */}
-      <div aria-hidden="true" className="aegis-prompt-halo">
+      {/* Soft blurred copy of the perimeter highlight */}
+      <div aria-hidden="true" className="aegis-prompt-halo !rounded-[16px]">
         <div className="aegis-prompt-ring aegis-prompt-ring--soft" />
       </div>
 
-      {/* Surface + content. Solid near-black, slight elevation,
-          static hairline border; the crisp ring paints over its edge. */}
-      <div className="aegis-prompt-surface relative flex items-center gap-3.5 rounded-[22px] border border-border-base bg-[#0F0F0F] py-4 pl-5 pr-4 sm:gap-4 sm:py-[17px] sm:pl-6 sm:pr-5">
-        <span
-          aria-hidden="true"
-          className="hidden shrink-0 items-center gap-1.5 rounded-full border border-accent/20 bg-black/40 px-2.5 py-[5px] text-[9px] font-semibold uppercase tracking-[0.18em] text-accent/75 sm:inline-flex"
-        >
-          <Shield className="h-[11px] w-[11px] text-accent/70" />
-          Aegis
-        </span>
+      {/* Surface + content. Matching Fused: dark grey #141414, 16px radius, stacked content. */}
+      <div className="aegis-prompt-surface relative flex flex-col rounded-[16px] border border-border-base bg-[#141414] p-2">
+        <div className="flex items-center gap-3.5 px-4 pt-3 pb-8 sm:px-5">
+          <span
+            aria-hidden="true"
+            className="hidden shrink-0 items-center gap-1.5 rounded-full border border-accent/20 bg-black/40 px-2.5 py-[5px] text-[9px] font-semibold uppercase tracking-[0.18em] text-accent/75 sm:inline-flex"
+          >
+            <Shield className="h-[11px] w-[11px] text-accent/70" />
+            Aegis
+          </span>
 
-        <p className="min-w-0 flex-1 truncate text-left text-[17px] font-medium leading-normal tracking-[0.01em] text-foreground-secondary sm:text-[19px]">
-          {showTypewriter ? (
-            <>
-              <span className="sr-only">Example question: </span>
-              <span aria-hidden="true">
-                {text}
-                <span className="prompt-caret" />
+          <p className="min-w-0 flex-1 truncate text-left text-[17px] font-medium leading-normal tracking-[0.01em] text-foreground-secondary sm:text-[19px]">
+            {showTypewriter ? (
+              <>
+                <span className="sr-only">Example question: </span>
+                <span aria-hidden="true">
+                  {text}
+                  <span className="prompt-caret" />
+                </span>
+              </>
+            ) : (
+              <span
+                aria-hidden="true"
+                className={mounted && !reduceMotion ? undefined : "text-[#85857C]"}
+              >
+                {mounted && !reduceMotion ? stableQuestion : PLACEHOLDER}
               </span>
-            </>
-          ) : (
-            <span
-              aria-hidden="true"
-              className={mounted && !reduceMotion ? undefined : "text-[#85857C]"}
-            >
-              {mounted && !reduceMotion ? stableQuestion : PLACEHOLDER}
-            </span>
-          )}
-        </p>
+            )}
+          </p>
+        </div>
 
-        <span
-          aria-hidden="true"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-accent/70 transition-all duration-300 group-hover:translate-x-[3px] group-hover:text-accent"
-        >
-          <ArrowRight className="h-[18px] w-[18px]" />
-        </span>
+        {/* Bottom action row */}
+        <div className="mt-auto flex items-center justify-between border-t border-border-base/50 pt-2 px-2">
+          <div className="flex items-center gap-2">
+            <button className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground-muted hover:bg-white/5 hover:text-foreground transition-colors">
+              Surprise me
+            </button>
+          </div>
+          <span
+            aria-hidden="true"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-foreground transition-all duration-300 hover:bg-white/10 cursor-pointer"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </span>
+        </div>
       </div>
 
-      {/* Crisp perimeter highlight — conic gradient masked to a thin
-          1.5px ring, so the center stays dark and text is never
-          overpainted. Never receives pointer events. */}
-      <div aria-hidden="true" className="aegis-prompt-ring aegis-prompt-ring--crisp" />
+      <div aria-hidden="true" className="aegis-prompt-ring aegis-prompt-ring--crisp !rounded-[16px]" />
     </div>
   );
 }

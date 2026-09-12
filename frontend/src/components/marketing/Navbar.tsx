@@ -39,19 +39,20 @@ export function Navbar() {
   const isHomePage = pathname === "/";
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b transition-colors duration-200",
-        isHomePage && "aegis-rise-navbar",
-        scrolled
-          ? "border-border-base/70 bg-background/80 backdrop-blur-md"
-          : "border-transparent bg-background/0 backdrop-blur-[2px]"
-      )}
-    >
-      <nav
-        aria-label="Main navigation"
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6"
+    <div className="fixed left-0 right-0 top-3 z-40 flex justify-center px-4 pointer-events-none">
+      <header
+        className={cn(
+          "pointer-events-auto w-full max-w-[1200px] rounded-full border transition-all duration-300",
+          isHomePage && "aegis-rise-navbar",
+          scrolled
+            ? "border-border-base/70 bg-background/85 backdrop-blur-[16px] shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            : "border-transparent bg-transparent backdrop-blur-[2px]"
+        )}
       >
+        <nav
+          aria-label="Main navigation"
+          className="mx-auto flex h-[52px] items-center justify-between px-4 sm:px-6"
+        >
         <Link href="/" aria-label="Aegis home" className="shrink-0">
           <AegisMark />
         </Link>
@@ -79,14 +80,14 @@ export function Navbar() {
           })}
         </ul>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Link
             href="/login"
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground"
+            className="rounded-full px-4 py-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-card"
           >
             Log In
           </Link>
-          <Link href="/signup" className="btn-primary">
+          <Link href="/signup" className="btn-primary rounded-full px-5 py-2">
             Get Started
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
@@ -134,6 +135,7 @@ export function Navbar() {
           </ul>
         </div>
       )}
-    </header>
+      </header>
+    </div>
   );
 }

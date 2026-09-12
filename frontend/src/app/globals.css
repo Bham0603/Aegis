@@ -9,7 +9,7 @@
    ============================================================ */
 
 :root {
-  --background: #050505;
+  --background: #0a0a0a;
   --background-secondary: #0a0a0a;
   --card: #0d0d0d;
   --card-elevated: #111111;
@@ -162,32 +162,15 @@ body {
   left: 50%;
   bottom: -110vh;
   bottom: -110svh;
-  width: 180vw;
-  height: 140vh;
-  height: 140svh;
+  width: 2086px;
+  height: 955px;
   transform: translateX(-50%);
-  border-radius: 50%;
-  background-color: #000000;
-  /* Light falling on a black surface: a tight cream highlight right
-     at the apex edge, over an extremely subtle green reflection
-     washing the upper face of the dome. Never a bright green
-     outline — the crisp line below is a soft gray/cream hairline. */
-  background-image:
-    radial-gradient(
-      ellipse 62% 100% at 50% 0%,
-      rgba(244, 243, 232, 0.05),
-      transparent 11%
-    ),
-    radial-gradient(
-      ellipse 55% 100% at 50% 0%,
-      rgba(223, 255, 63, 0.045),
-      transparent 58%
-    );
+  border-radius: 100%;
+  background-color: transparent;
+  /* Match Fused.io double inset/drop shadow approach */
   box-shadow:
-    0 -1px 0 0 rgba(244, 243, 232, 0.06),
-    0 -14px 44px -12px rgba(244, 243, 232, 0.05),
-    0 -22px 80px -22px rgba(223, 255, 63, 0.12),
-    0 -110px 240px -50px rgba(223, 255, 63, 0.06);
+    inset 0px 2px 20px 0px rgba(255, 255, 255, 0.2),
+    0px -10px 50px 1px rgba(255, 255, 255, 0.15);
   pointer-events: none;
 }
 
@@ -543,11 +526,9 @@ body {
 
 .headline-luminous {
   background-image: linear-gradient(
-    180deg,
-    #e5f5a7 0%,
-    #e3eeb1 34%,
-    #eeeed0 68%,
-    #f4f3e8 100%
+    0deg,
+    #ffffff 0%,
+    #e3eda4 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -595,11 +576,11 @@ body {
 @keyframes aegis-fade-up {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(40px) scale(0.7);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 

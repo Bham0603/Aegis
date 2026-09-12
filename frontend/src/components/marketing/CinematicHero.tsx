@@ -43,20 +43,20 @@ export function CinematicHero() {
       </div>
 
       {/* Content */}
-      <div className="relative mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-center px-4 pb-[26svh] pt-24 text-center sm:px-6">
+      <div className="relative mx-auto flex min-h-[100svh] max-w-[800px] flex-col items-center justify-center px-4 pb-[26svh] pt-24 text-center sm:px-6">
         <p className="aegis-rise-eyebrow eyebrow tracking-[0.28em]">
           The Security Layer for AI Agents
         </p>
 
         <h1
-          className="aegis-rise-headline headline headline-luminous mt-8 text-[clamp(2.6rem,6.2vw,4.5rem)]"
+          className="aegis-rise-headline headline headline-luminous mt-8 text-[clamp(2.6rem,6.2vw,56px)] tracking-[-1.12px]"
         >
           Let your agents act.
           <br />
           Aegis keeps them safe.
         </h1>
 
-        <p className="aegis-rise-copy mt-8 max-w-2xl text-base leading-relaxed text-secondary sm:text-lg">
+        <p className="aegis-rise-copy mt-8 max-w-[680px] text-[17px] leading-relaxed text-[#D6D9C5]">
           Aegis is an intelligent security layer for autonomous AI agents —
           detecting prompt injection, unsafe actions, sensitive-data exposure
           and suspicious behavior before they become incidents.
