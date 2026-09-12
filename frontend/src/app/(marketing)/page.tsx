@@ -34,7 +34,7 @@ export default function HomePage() {
 
       {/* ============ 04 · CORE CONCEPT ============ */}
       <section className="relative border-t border-border-base/60 bg-background-secondary">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="eyebrow">Why agent security is different</p>
@@ -82,7 +82,7 @@ export default function HomePage() {
       {/* ============ 05 · SECURITY CONSOLE ============ */}
       <section id="security-console" className="relative overflow-x-clip">
         <GlowBackground />
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <SectionHeading
             eyebrow="Security console"
             title="See what Aegis sees."
@@ -96,7 +96,7 @@ export default function HomePage() {
 
       {/* ============ PROTECTION FEATURES ============ */}
       <section className="relative">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <SectionHeading
             eyebrow="Protection"
             title="Protect every action."
@@ -138,14 +138,14 @@ export default function HomePage() {
 
       {/* ============ 06 · DECISION ENGINE ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <div className="grid gap-14 lg:grid-cols-[1fr_1.2fr] lg:items-center">
             <div>
               <p className="eyebrow">Decision engine</p>
               <h2 className="headline mt-4 text-3xl sm:text-4xl">
                 Every action gets a decision.
               </h2>
-              <p className="mt-5 text-base leading-relaxed text-muted">
+              <p className="mt-5 text-base leading-relaxed text-muted scroll-illuminate">
                 Aegis never trusts the LLM alone for authorization. Each
                 action flows through an explainable, deterministic pipeline —
                 with risk scores, matched policies and reasons recorded for
@@ -188,7 +188,7 @@ export default function HomePage() {
       {/* ============ 07 · ATTACK SIMULATION ============ */}
       <section className="relative overflow-x-clip">
         <GlowBackground />
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <SectionHeading
             eyebrow="Live demo"
             title="See Aegis stop an attack."
@@ -202,7 +202,7 @@ export default function HomePage() {
 
       {/* ============ 08 · DASHBOARD PREVIEW ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <SectionHeading
             eyebrow="Command center"
             title="One place to understand everything your agents do."
@@ -216,7 +216,7 @@ export default function HomePage() {
 
       {/* ============ 09 · AEGIS COPILOT ============ */}
       <section>
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div className="order-2 lg:order-1">
               <CopilotPreview />
@@ -253,7 +253,7 @@ export default function HomePage() {
 
       {/* ============ 10 · VS CODE EXTENSION ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="eyebrow">Aegis for VS Code</p>
@@ -292,7 +292,7 @@ export default function HomePage() {
 
       {/* ============ 11 · POLICY ENGINE ============ */}
       <section>
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="eyebrow">Policy engine</p>
@@ -312,7 +312,7 @@ export default function HomePage() {
 
       {/* ============ 12–13 · TIMELINE + AUDIENCES ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <div className="grid gap-14 lg:grid-cols-[1fr_1.4fr]">
             <div>
               <p className="eyebrow">Full traceability</p>
@@ -356,7 +356,7 @@ export default function HomePage() {
 
       {/* ============ 14 · PRICING ============ */}
       <section>
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-[120px]">
           <SectionHeading
             eyebrow="Pricing"
             title="Protect your agents at any scale."
@@ -457,7 +457,7 @@ function FlowArrow() {
 
 function AudienceCard({ title, description }: { title: string; description: string }) {
   return (
-    <div className="panel panel-interactive rounded-xl p-6">
+    <div className="panel panel-interactive corner-reticle rounded-xl p-6">
       <h3 className="text-base font-semibold text-foreground">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">{description}</p>
     </div>

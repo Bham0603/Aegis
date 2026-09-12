@@ -39,7 +39,7 @@ export function Navbar() {
   const isHomePage = pathname === "/";
 
   return (
-    <div className="fixed left-0 right-0 top-3 z-40 flex justify-center px-4 pointer-events-none">
+    <div className="sticky top-0 z-40 flex justify-center px-4 pointer-events-none pt-3">
       <header
         className={cn(
           "pointer-events-auto w-full max-w-[1200px] rounded-full border transition-all duration-300",

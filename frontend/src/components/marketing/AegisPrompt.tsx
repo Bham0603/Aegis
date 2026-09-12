@@ -57,11 +57,13 @@ export function AegisPrompt() {
     if (!mounted || reduceMotion) return;
 
     let cancelled = false;
+    let currentTimer: ReturnType<typeof setTimeout> | null = null;
+    
     const schedule = (fn: () => void, ms: number) => {
-      const t = setTimeout(() => {
+      if (cancelled) return;
+      currentTimer = setTimeout(() => {
         if (!cancelled) fn();
       }, ms);
-      timers.current.push(t);
     };
 
     const typeQuestion = (qIndex: number, charIndex: number) => {
@@ -94,11 +96,8 @@ export function AegisPrompt() {
 
     return () => {
       cancelled = true;
-      timers.current.forEach(clearTimeout);
-      timers.current = [];
+      if (currentTimer) clearTimeout(currentTimer);
     };
-    // questionIndex intentionally excluded: the loop carries its own index.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, reduceMotion]);
 
   const showTypewriter = mounted && !reduceMotion;

@@ -11,8 +11,8 @@
 :root {
   --background: #0a0a0a;
   --background-secondary: #0a0a0a;
-  --card: #0d0d0d;
-  --card-elevated: #111111;
+  --card: #141414;
+  --card-elevated: #1a1a1a;
   --border: #252525;
   --border-strong: #303030;
   --accent: #dfff3f;
@@ -162,14 +162,13 @@ body {
   left: 50%;
   bottom: -110vh;
   bottom: -110svh;
-  width: 2086px;
+  width: 2242px;
   height: 955px;
   transform: translateX(-50%);
   border-radius: 100%;
   background-color: transparent;
-  /* Match Fused.io double inset/drop shadow approach */
   box-shadow:
-    inset 0px 2px 20px 0px rgba(255, 255, 255, 0.2),
+    inset 0px 2px 20px 0px rgba(255, 255, 255, 0.8),
     0px -10px 50px 1px rgba(255, 255, 255, 0.15);
   pointer-events: none;
 }
@@ -231,7 +230,7 @@ body {
 
 .aegis-prompt {
   position: relative;
-  border-radius: 22px;
+  border-radius: 16px;
 }
 
 /* Crisp ring layer: conic gradient with one short lime segment,
@@ -253,13 +252,11 @@ body {
     transparent 358deg,
     transparent 360deg
   );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
+  -webkit-mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
+  -webkit-mask-clip: content-box, border-box;
   -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
+  mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
+  mask-clip: content-box, border-box;
   mask-composite: exclude;
   animation:
     prompt-angle-rotate 9s linear infinite,
@@ -273,18 +270,18 @@ body {
 .aegis-prompt-halo {
   position: absolute;
   inset: -3px;
-  border-radius: 26px;
+  border-radius: 16px;
   padding: 6px;
   pointer-events: none;
-  filter: blur(10px);
+  filter: blur(12px);
   opacity: 0.5;
   z-index: 0;
 }
 
 .aegis-prompt-ring--soft {
-  position: static;
-  inset: auto;
-  padding: 6px;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: conic-gradient(
     from var(--prompt-angle),
     transparent 0deg,
@@ -323,10 +320,7 @@ body {
 /* Surface sits above the halo but below the crisp ring. */
 .aegis-prompt-surface {
   z-index: 2;
-  box-shadow:
-    0 10px 40px -12px rgba(0, 0, 0, 0.9),
-    0 2px 12px -6px rgba(0, 0, 0, 0.8),
-    0 0 24px -10px rgba(223, 255, 63, 0.1);
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 40px 0px;
   transition:
     box-shadow 0.35s ease,
     background-color 0.35s ease,
@@ -342,10 +336,7 @@ body {
 .aegis-prompt:hover .aegis-prompt-surface {
   transform: translateY(-1px);
   background-color: #101010;
-  box-shadow:
-    0 16px 48px -14px rgba(0, 0, 0, 0.95),
-    0 4px 16px -6px rgba(0, 0, 0, 0.85),
-    0 0 36px -10px rgba(223, 255, 63, 0.16);
+  box-shadow: rgba(0, 0, 0, 0.6) 0px 14px 45px 0px;
 }
 
 /* Focus: keep the living ring, strengthen it slightly, add an
@@ -393,25 +384,27 @@ body {
 .panel {
   background-color: var(--card);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 12px;
 }
 
 .panel-elevated {
   background-color: var(--card-elevated);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 12px;
 }
 
 .panel-interactive {
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
+    box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
 .panel-interactive:hover {
-  border-color: var(--border-strong);
+  border-color: rgba(255, 255, 255, 0.15);
   background-color: var(--card-elevated);
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 /* Legacy glass classes kept for existing dashboard pages (unchanged behavior) */
@@ -467,8 +460,9 @@ body {
   color: #0a0a0a;
   font-weight: 600;
   font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
+  padding: 8px 16px;
+  height: 44px;
+  border-radius: 12px;
   transition: all 0.15s ease;
 }
 
@@ -480,19 +474,20 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--card-elevated);
-  color: var(--foreground);
-  border: 1px solid var(--border-strong);
+  background-color: #141414;
+  color: #ffffff;
+  border: 0.8px solid rgba(255, 255, 255, 0.1);
   font-weight: 500;
   font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  transition: all 0.15s ease;
+  padding: 8px 16px;
+  height: 44px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background-color: #171717;
-  border-color: #3a3a3a;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* ---------- Typography helpers ---------- */
@@ -734,3 +729,59 @@ body:has(.aegis-power-on) .announcement-bar {
 ::-webkit-scrollbar-thumb:hover {
   background: #3a3a3a;
 }
+
+/* ---------- Fused Corner Reticles ---------- */
+.corner-reticle {
+  position: relative;
+}
+.corner-reticle::before,
+.corner-reticle::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--accent);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+.corner-reticle::before {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+}
+.corner-reticle::after {
+  bottom: -2px;
+  right: -2px;
+  border-left: none;
+  border-top: none;
+}
+.corner-reticle:hover::before,
+.corner-reticle:hover::after {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* ---------- Scroll-Driven Illumination ---------- */
+@supports (animation-timeline: view()) {
+  .scroll-illuminate {
+    background: linear-gradient(to right, var(--foreground) 50%, var(--foreground-muted) 50%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: illuminate-text linear both;
+    animation-timeline: view();
+    animation-range: entry 20% cover 50%;
+  }
+
+  @keyframes illuminate-text {
+    to {
+      background-position: 0 0;
+    }
+  }
+}
+
+

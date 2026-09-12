@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
@@ -109,7 +109,7 @@ export function FeatureCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45 }}
-      className="panel panel-interactive flex flex-col gap-4 rounded-xl p-6"
+      className="panel panel-interactive corner-reticle flex flex-col gap-4 rounded-xl p-6"
     >
       <div className="flex items-start justify-between">
         <h3 className="text-lg font-semibold text-foreground">{title}</h3>
