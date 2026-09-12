@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 import { heroConsoleActions, securityScore } from "@/lib/demo-data";
 import { StatusDot } from "./StatusDot";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,7 @@ import { cn } from "@/lib/utils";
 export function SecurityConsole() {
   const [visibleCount, setVisibleCount] = useState(2);
   const [score, setScore] = useState(87);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   // Progressively reveal activity rows, then restart — subtle live cadence.
   useEffect(() => {

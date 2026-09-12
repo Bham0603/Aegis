@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { useReducedMotion } from "framer-motion";
+import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 import { ArrowRight, Shield } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 /**
  * Aegis Prompt — the cinematic hero prompt.
@@ -13,6 +12,11 @@ import { cn } from "@/lib/utils";
  * the animated text only starts on the client after mount, and the
  * server/first paint always shows the static placeholder.
  * With prefers-reduced-motion, a stable question is shown instead.
+ *
+ * Visual system: dark solid surface, subtle static border, a single
+ * slow lime highlight traveling around the perimeter (see
+ * .aegis-prompt-ring in globals.css), soft blurred glow halo, and a
+ * broad atmospheric radial glow behind the whole component.
  */
 
 const QUESTIONS = [
@@ -37,9 +41,9 @@ const getSnapshot = () => true;
 const getServerSnapshot = () => false;
 
 export function AegisPrompt() {
-  const reduceMotion = useReducedMotion();
-  // Hydration-safe mounted flag: false during SSR/first paint, true on the
-  // client after hydration — without setState inside an effect.
+  const reduceMotion = useSafeReducedMotion();
+  // Hydration-safe mounted flag: false during SSR/first paint, true on
+  // the client after hydration — no setState inside an effect.
   const mounted = useSyncExternalStore(
     emptySubscribe,
     getSnapshot,
@@ -99,27 +103,38 @@ export function AegisPrompt() {
   const stableQuestion = QUESTIONS[questionIndex];
 
   return (
-    <div className="group relative mx-auto w-full max-w-2xl">
-      {/* soft atmospheric glow behind the prompt */}
+    <div
+      className="aegis-prompt group relative mx-auto w-full max-w-2xl"
+      tabIndex={0}
+      role="group"
+      aria-label="Aegis prompt — example questions you can ask about your agents' security"
+    >
+      {/* Broad atmospheric glow behind the prompt (same lighting system
+          as the perimeter highlight — lime, low opacity, fading outward). */}
       <div
         aria-hidden="true"
-        className="absolute -inset-x-10 -inset-y-8 rounded-[3rem] bg-accent/10 blur-3xl opacity-60"
+        className="pointer-events-none absolute -inset-x-6 -inset-y-8 rounded-full bg-accent/[0.06] blur-3xl sm:-inset-x-14 sm:-inset-y-12"
       />
 
-      <div
-        role="group"
-        aria-label="Aegis prompt — example questions you can ask about your agents' security"
-        className="relative flex items-center gap-3.5 rounded-2xl border border-border-base bg-[#070707]/95 py-4 pl-5 pr-4 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.9),0_0_32px_-6px_rgba(223,255,63,0.14)] sm:gap-4 sm:py-5 sm:pl-6 sm:pr-5"
-      >
+      {/* Soft blurred copy of the perimeter highlight — a small glow
+          trailing the crisp line. Painted under the surface so its
+          inner bleed never shows; outward bleed reads as a halo. */}
+      <div aria-hidden="true" className="aegis-prompt-halo">
+        <div className="aegis-prompt-ring aegis-prompt-ring--soft" />
+      </div>
+
+      {/* Surface + content. Solid near-black, slight elevation,
+          static hairline border; the crisp ring paints over its edge. */}
+      <div className="aegis-prompt-surface relative flex items-center gap-3.5 rounded-[22px] border border-border-base bg-[#0F0F0F] py-4 pl-5 pr-4 sm:gap-4 sm:py-[17px] sm:pl-6 sm:pr-5">
         <span
           aria-hidden="true"
-          className="hidden shrink-0 items-center gap-2 rounded-full border border-accent-border bg-accent-dim px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.14em] text-accent sm:inline-flex"
+          className="hidden shrink-0 items-center gap-1.5 rounded-full border border-accent/20 bg-black/40 px-2.5 py-[5px] text-[9px] font-semibold uppercase tracking-[0.18em] text-accent/75 sm:inline-flex"
         >
-          <Shield className="h-3 w-3" />
-          AEGIS
+          <Shield className="h-[11px] w-[11px] text-accent/70" />
+          Aegis
         </span>
 
-        <p className="min-w-0 flex-1 truncate text-left font-mono text-sm text-foreground-secondary sm:text-base">
+        <p className="min-w-0 flex-1 truncate text-left text-[17px] font-medium leading-normal tracking-[0.01em] text-foreground-secondary sm:text-[19px]">
           {showTypewriter ? (
             <>
               <span className="sr-only">Example question: </span>
@@ -129,25 +144,27 @@ export function AegisPrompt() {
               </span>
             </>
           ) : (
-            <span aria-hidden="true">
-              {mounted && !reduceMotion
-                ? stableQuestion
-                : PLACEHOLDER}
+            <span
+              aria-hidden="true"
+              className={mounted && !reduceMotion ? undefined : "text-[#85857C]"}
+            >
+              {mounted && !reduceMotion ? stableQuestion : PLACEHOLDER}
             </span>
           )}
         </p>
 
         <span
           aria-hidden="true"
-          className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors duration-200",
-            "border-border-strong bg-background text-foreground-muted",
-            "group-hover:border-accent-border group-hover:bg-accent group-hover:text-black"
-          )}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-accent/70 transition-all duration-300 group-hover:translate-x-[3px] group-hover:text-accent"
         >
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-[18px] w-[18px]" />
         </span>
       </div>
+
+      {/* Crisp perimeter highlight — conic gradient masked to a thin
+          1.5px ring, so the center stays dark and text is never
+          overpainted. Never receives pointer events. */}
+      <div aria-hidden="true" className="aegis-prompt-ring aegis-prompt-ring--crisp" />
     </div>
   );
 }

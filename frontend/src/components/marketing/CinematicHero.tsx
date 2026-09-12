@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 import { AegisPrompt } from "./AegisPrompt";
 
 /**
@@ -11,7 +12,7 @@ import { AegisPrompt } from "./AegisPrompt";
  * green light at the intersection.
  */
 export function CinematicHero() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   const fadeUp = (delay: number) => ({
     initial: reduceMotion ? false : ({ opacity: 0, y: 18 } as const),

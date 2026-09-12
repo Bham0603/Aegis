@@ -222,6 +222,158 @@ body {
   flex-shrink: 0;
 }
 
+/* ---------- Aegis prompt — living perimeter ----------
+   A single small lime highlight travels slowly around the prompt
+   perimeter: dark surface + hairline border + moving 1.5px ring +
+   soft blurred halo. Runs on the compositor (transform-only
+   @property animation), degrades to a static subtle border under
+   prefers-reduced-motion. */
+
+@property --prompt-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.aegis-prompt {
+  position: relative;
+  border-radius: 22px;
+}
+
+/* Crisp ring layer: conic gradient with one short lime segment,
+   masked to a thin ring so the center stays completely dark.
+   Painted ABOVE the surface: only the 1.5px perimeter band is
+   opaque, so it never covers text or the dark center. */
+.aegis-prompt-ring--crisp {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px; /* ring thickness */
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--prompt-angle),
+    transparent 0deg,
+    transparent 302deg,
+    rgba(223, 255, 63, 0.06) 316deg,
+    rgba(223, 255, 63, 0.9) 342deg,
+    transparent 358deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: prompt-angle-rotate 9s linear infinite;
+  z-index: 3;
+}
+
+/* Soft glow copy — same gradient, heavier blur, under the surface:
+   reads as a small halo/trail around the traveling highlight
+   without any green tint inside the prompt. */
+.aegis-prompt-halo {
+  position: absolute;
+  inset: -3px;
+  border-radius: 26px;
+  padding: 6px;
+  pointer-events: none;
+  filter: blur(10px);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.aegis-prompt-ring--soft {
+  position: static;
+  inset: auto;
+  padding: 6px;
+  background: conic-gradient(
+    from var(--prompt-angle),
+    transparent 0deg,
+    transparent 300deg,
+    rgba(223, 255, 63, 0.5) 330deg,
+    transparent 360deg
+  );
+  -webkit-mask: none;
+  mask: none;
+  animation: prompt-angle-rotate 9s linear infinite;
+}
+
+@keyframes prompt-angle-rotate {
+  to {
+    --prompt-angle: 360deg;
+  }
+}
+
+/* Surface sits above the halo but below the crisp ring. */
+.aegis-prompt-surface {
+  z-index: 2;
+  box-shadow:
+    0 10px 40px -12px rgba(0, 0, 0, 0.9),
+    0 2px 12px -6px rgba(0, 0, 0, 0.8),
+    0 0 24px -10px rgba(223, 255, 63, 0.1);
+  transition:
+    box-shadow 0.35s ease,
+    background-color 0.35s ease,
+    transform 0.35s ease;
+}
+
+/* Hover: slightly stronger halo, elevation, arrow already brightens
+   via group-hover in the component. */
+.aegis-prompt:hover .aegis-prompt-halo {
+  opacity: 0.7;
+}
+
+.aegis-prompt:hover .aegis-prompt-surface {
+  transform: translateY(-1px);
+  background-color: #101010;
+  box-shadow:
+    0 16px 48px -14px rgba(0, 0, 0, 0.95),
+    0 4px 16px -6px rgba(0, 0, 0, 0.85),
+    0 0 36px -10px rgba(223, 255, 63, 0.16);
+}
+
+/* Focus: keep the living ring, strengthen it slightly, add an
+   accessible lime focus indication in the Aegis visual system. */
+.aegis-prompt:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(223, 255, 63, 0.35);
+}
+
+.aegis-prompt:focus-visible .aegis-prompt-ring--crisp {
+  background: conic-gradient(
+    from var(--prompt-angle),
+    rgba(223, 255, 63, 0.1) 0deg,
+    transparent 30deg,
+    transparent 290deg,
+    rgba(223, 255, 63, 0.12) 310deg,
+    rgba(223, 255, 63, 1) 340deg,
+    transparent 360deg
+  );
+}
+
+/* Reduced motion: static prompt — border becomes a quiet static
+   lime hairline, no rotation, no halo pulse, no typewriter. */
+@media (prefers-reduced-motion: reduce) {
+  .aegis-prompt-ring--crisp,
+  .aegis-prompt-ring--soft {
+    animation: none;
+    background: conic-gradient(
+      from 40deg,
+      transparent 0deg,
+      transparent 280deg,
+      rgba(223, 255, 63, 0.28) 330deg,
+      transparent 360deg
+    );
+  }
+  .aegis-prompt-halo {
+    opacity: 0.35;
+    filter: blur(8px);
+  }
+}
+
 /* ---------- Surfaces ---------- */
 
 .panel {
