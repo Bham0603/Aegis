@@ -1,10 +1,16 @@
-"use client";
+﻿"use client";
 
-import React, { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
+
+import React, { useEffect, useState, useSyncExternalStore } from "react";
+import { motion } from "framer-motion";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 import { copilotPreviewConversation } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
+
+const emptySubscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 const EXAMPLE_QUESTIONS = [
   "Why was this action blocked?",
@@ -15,18 +21,21 @@ const EXAMPLE_QUESTIONS = [
 ];
 
 /**
- * Marketing preview of the Aegis Copilot — an AI security analyst over
+ * Marketing preview of the Aegis Copilot â€” an AI security analyst over
  * your real audit data. This preview is illustrative only.
  */
 export function CopilotPreview() {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [typed, setTyped] = useState("");
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
+  // Hydration-safe mounted flag: the server/first client render always
+  // shows the full question; the typewriter only starts after mount.
+  const mounted = useSyncExternalStore(emptySubscribe, getSnapshot, getServerSnapshot);
   const question = EXAMPLE_QUESTIONS[questionIndex];
 
   // Rotate suggested questions with a typing cadence.
   useEffect(() => {
-    if (reduceMotion) return;
+    if (!mounted || reduceMotion) return;
     let cancelled = false;
     const typer = setInterval(() => {
       if (cancelled) return;
@@ -39,18 +48,19 @@ export function CopilotPreview() {
       cancelled = true;
       clearInterval(typer);
     };
-  }, [question, reduceMotion]);
+  }, [mounted, question, reduceMotion]);
 
-  const typedText = reduceMotion ? question : typed || question.slice(0, 1);
+  const typedText =
+    mounted && !reduceMotion ? typed || question.slice(0, 1) : question;
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (!mounted || reduceMotion) return;
     const rotate = setInterval(
       () => setQuestionIndex((i) => (i + 1) % EXAMPLE_QUESTIONS.length),
       6000
     );
     return () => clearInterval(rotate);
-  }, [reduceMotion]);
+  }, [mounted, reduceMotion]);
 
   const answer = copilotPreviewConversation[1];
 
@@ -101,7 +111,7 @@ export function CopilotPreview() {
             className={cn("h-1.5 w-1.5 rounded-full bg-accent", !reduceMotion && "pulse-dot")}
           />
           <p className="flex-1 truncate text-sm text-foreground-muted">
-            Ask about threats, agents, policies…
+            Ask about threats, agents, policiesâ€¦
           </p>
           <ArrowUpRight className="h-4 w-4 text-foreground-muted/60" aria-hidden="true" />
         </div>

@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
+
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { StatusDot } from "./StatusDot";
 
 /**
@@ -22,7 +24,7 @@ export function InjectionViz() {
       <div className="flex items-center gap-2 rounded-md border border-block/40 bg-block/10 px-3 py-2">
         <StatusDot tone="block" />
         <span className="font-mono text-[10px] font-semibold text-block">
-          &quot;ignore previous instructions&quot; → BLOCKED
+          &quot;ignore previous instructions&quot; â†’ BLOCKED
         </span>
       </div>
     </div>
@@ -39,7 +41,7 @@ export function ToolCallViz() {
         </p>
       </div>
       <div className="flex items-center gap-2 px-1">
-        <span className="font-mono text-[10px] text-foreground-muted">aegis →</span>
+        <span className="font-mono text-[10px] text-foreground-muted">aegis â†’</span>
         <span className="rounded-full border border-block/40 bg-block/10 px-2 py-0.5 font-mono text-[10px] font-bold text-block">
           NOT EXECUTED
         </span>
@@ -99,7 +101,7 @@ export function FeatureCard({
   description: string;
   children: React.ReactNode;
 }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   return (
     <motion.article

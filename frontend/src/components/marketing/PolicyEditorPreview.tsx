@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
+
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
 import React, { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { demoPolicies } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 import { StatusDot } from "./StatusDot";
@@ -15,7 +17,7 @@ type Effect = "ALLOW" | "REVIEW" | "BLOCK";
  */
 export function PolicyEditorPreview() {
   const [policies, setPolicies] = useState(demoPolicies);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   const cycleEffect = (index: number) => {
     setPolicies((current) =>
@@ -79,8 +81,8 @@ export function PolicyEditorPreview() {
       </ul>
 
       <p className="border-t border-border-base bg-background/60 px-5 py-3 text-[11px] text-foreground-muted">
-        Click an effect to cycle ALLOW → REVIEW → BLOCK. Changes are
-        illustrative — real policies are enforced server-side by the
+        Click an effect to cycle ALLOW â†’ REVIEW â†’ BLOCK. Changes are
+        illustrative â€” real policies are enforced server-side by the
         deterministic Aegis Policy Engine.
       </p>
     </div>

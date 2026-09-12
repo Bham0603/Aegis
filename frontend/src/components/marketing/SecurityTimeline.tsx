@@ -1,13 +1,15 @@
-"use client";
+﻿"use client";
+
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { demoTimeline } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 
 /** Elegant security timeline with subtle motion. */
 export function SecurityTimeline() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   const tones = {
     neutral: "neutral",

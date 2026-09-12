@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
+
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useInView, useReducedMotion } from "framer-motion";
+import { useInView } from "framer-motion";
 
 /** Counts up to a target when scrolled into view. */
 export function CountUp({
@@ -16,7 +18,7 @@ export function CountUp({
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const [value, setValue] = useState(0);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   useEffect(() => {
     if (!inView || reduceMotion) return;

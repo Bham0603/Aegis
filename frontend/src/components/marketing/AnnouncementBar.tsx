@@ -7,7 +7,7 @@ import { Shield } from "lucide-react";
  */
 export function AnnouncementBar() {
   return (
-    <div className="relative z-50 border-b border-border-base bg-background/90 backdrop-blur-sm">
+    <div className="announcement-bar relative z-50 border-b border-border-base bg-background/90 backdrop-blur-sm">
       <p className="mx-auto max-w-7xl px-4 py-2 text-center text-xs tracking-wide text-foreground-muted sm:px-6">
         Aegis is building security for the agentic era
         <span className="mx-2 text-border-strong" aria-hidden="true">·</span>

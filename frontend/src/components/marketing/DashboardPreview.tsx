@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
+
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   dashboardPreviewMetrics,
   dashboardPreviewActivity,
@@ -12,10 +14,10 @@ import { cn } from "@/lib/utils";
 
 /**
  * Realistic dashboard preview built as a coherent product visualization.
- * Uses isolated demo data — not a screenshot.
+ * Uses isolated demo data â€” not a screenshot.
  */
 export function DashboardPreview() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   return (
     <div className="panel-elevated overflow-hidden rounded-xl shadow-2xl shadow-black/60">

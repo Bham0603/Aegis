@@ -111,16 +111,16 @@ body {
 
 .hero-glow-broad {
   background-image: radial-gradient(
-    ellipse 75% 42% at 50% 56%,
-    rgba(223, 255, 63, 0.09),
+    ellipse 78% 46% at 50% 64%,
+    rgba(223, 255, 63, 0.085),
     transparent 70%
   );
 }
 
 .hero-glow-core {
   background-image: radial-gradient(
-    ellipse 44% 26% at 50% 62%,
-    rgba(223, 255, 63, 0.15),
+    ellipse 46% 30% at 50% 72%,
+    rgba(223, 255, 63, 0.14),
     transparent 72%
   );
   animation: glow-drift 9s ease-in-out infinite alternate;
@@ -160,23 +160,34 @@ body {
 .hero-horizon {
   position: absolute;
   left: 50%;
-  bottom: -104vh;
-  bottom: -104svh;
+  bottom: -110vh;
+  bottom: -110svh;
   width: 180vw;
-  height: 145vh;
-  height: 145svh;
+  height: 140vh;
+  height: 140svh;
   transform: translateX(-50%);
   border-radius: 50%;
   background-color: #000000;
-  background-image: radial-gradient(
-    ellipse 55% 100% at 50% 0%,
-    rgba(223, 255, 63, 0.05),
-    transparent 58%
-  );
+  /* Light falling on a black surface: a tight cream highlight right
+     at the apex edge, over an extremely subtle green reflection
+     washing the upper face of the dome. Never a bright green
+     outline — the crisp line below is a soft gray/cream hairline. */
+  background-image:
+    radial-gradient(
+      ellipse 62% 100% at 50% 0%,
+      rgba(244, 243, 232, 0.05),
+      transparent 11%
+    ),
+    radial-gradient(
+      ellipse 55% 100% at 50% 0%,
+      rgba(223, 255, 63, 0.045),
+      transparent 58%
+    );
   box-shadow:
-    0 -1px 0 0 rgba(223, 255, 63, 0.2),
-    0 -16px 60px -12px rgba(223, 255, 63, 0.18),
-    0 -100px 240px -40px rgba(223, 255, 63, 0.07);
+    0 -1px 0 0 rgba(244, 243, 232, 0.06),
+    0 -14px 44px -12px rgba(244, 243, 232, 0.05),
+    0 -22px 80px -22px rgba(223, 255, 63, 0.12),
+    0 -110px 240px -50px rgba(223, 255, 63, 0.06);
   pointer-events: none;
 }
 
@@ -267,7 +278,9 @@ body {
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   mask-composite: exclude;
-  animation: prompt-angle-rotate 9s linear infinite;
+  animation:
+    prompt-angle-rotate 9s linear infinite,
+    aegis-ring-power-on 0.9s ease-out 0.85s both;
   z-index: 3;
 }
 
@@ -298,12 +311,29 @@ body {
   );
   -webkit-mask: none;
   mask: none;
-  animation: prompt-angle-rotate 9s linear infinite;
+  animation:
+    prompt-angle-rotate 9s linear infinite,
+    aegis-ring-power-on 0.9s ease-out 0.85s both;
 }
 
 @keyframes prompt-angle-rotate {
   to {
     --prompt-angle: 360deg;
+  }
+}
+
+/* Perimeter power-on: the traveling highlight begins invisible and
+   eases to full brightness after the prompt surface has appeared
+   (reveal ends ~950ms + short pause). The perpetual rotation is
+   never restarted — only opacity eases in. The halo wrapper holds
+   the dimmed state too, since its static 0.5 opacity would show
+   through during the dark phase. */
+@keyframes aegis-ring-power-on {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -360,6 +390,7 @@ body {
   .aegis-prompt-ring--crisp,
   .aegis-prompt-ring--soft {
     animation: none;
+    opacity: 1;
     background: conic-gradient(
       from 40deg,
       transparent 0deg,
@@ -503,6 +534,146 @@ body {
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.05;
+}
+
+/* ---------- Luminous headline ----------
+   Soft light treatment: pale yellow-green top → luminous cream →
+   warm ivory bottom. Static gradient (never animated), reads as
+   light on text rather than paint. No hard color stops. */
+
+.headline-luminous {
+  background-image: linear-gradient(
+    180deg,
+    #e5f5a7 0%,
+    #e3eeb1 34%,
+    #eeeed0 68%,
+    #f4f3e8 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Fallback browsers without background-clip: text keep flat ivory. */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .headline-luminous {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+    color: var(--foreground);
+  }
+}
+
+/* ---------- Initial page-load power-on ----------
+   A cinematic reveal of the whole composition: the page starts
+   very dark and the hero progressively reaches full brightness
+   within ~1s — atmosphere, navbar, content, prompt, horizon each
+   fading in on slightly staggered delays. Implemented as one-shot
+   CSS animations: no JS loops, no hydration state, SSR-safe (the
+   pre-animation styles ARE the server-rendered styles, so there is
+   no flash of unstyled content and no layout shift — only opacity
+   and transform are animated).
+
+   Sequence (tuned to the reference recording):
+     0ms     page heavily dimmed (opacity 0.35)
+     ~200ms  atmosphere begins to appear
+     ~400ms  navbar emerging
+     ~500ms  headline emerging
+     ~600ms  prompt emerging
+     ~700ms  horizon edge-light emerging
+     ~1050ms everything settled at full brightness */
+
+@keyframes aegis-page-power-on {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes aegis-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aegis-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Page-level dim on the hero composition (homepage only). Animates
+   the section from 0.35 opacity — the "very dark at 0ms" state. */
+.aegis-power-on {
+  animation: aegis-page-power-on 0.5s ease-out both;
+}
+
+/* Staggered element reveals — full composition settled ~1s.
+   Timeline per the reference: atmosphere ~200ms, navbar ~350ms,
+   headline ~500ms, copy ~550ms, prompt ~600ms, horizon ~700ms. */
+
+.aegis-rise-atmosphere {
+  animation: aegis-fade-in 0.45s ease-out 0.2s both;
+}
+
+.aegis-rise-navbar {
+  animation: aegis-fade-in 0.4s ease-out 0.35s both;
+}
+
+.aegis-rise-eyebrow {
+  animation: aegis-fade-up 0.4s ease-out 0.45s both;
+}
+
+.aegis-rise-headline {
+  animation: aegis-fade-up 0.45s ease-out 0.5s both;
+}
+
+.aegis-rise-copy {
+  animation: aegis-fade-up 0.35s ease-out 0.55s both;
+}
+
+.aegis-rise-prompt {
+  animation: aegis-fade-up 0.35s ease-out 0.6s both;
+}
+
+.aegis-rise-cta {
+  animation: aegis-fade-up 0.3s ease-out 0.65s both;
+}
+
+.aegis-rise-horizon {
+  animation: aegis-fade-in 0.3s ease-out 0.7s both;
+}
+
+/* The announcement strip above the navbar joins the homepage
+   power-on sequence via :has() — no JS, no layout change. */
+body:has(.aegis-power-on) .announcement-bar {
+  animation: aegis-fade-in 0.35s ease-out 0.3s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aegis-power-on,
+  .aegis-rise-atmosphere,
+  .aegis-rise-navbar,
+  .aegis-rise-eyebrow,
+  .aegis-rise-headline,
+  .aegis-rise-copy,
+  .aegis-rise-prompt,
+  .aegis-rise-cta,
+  .aegis-rise-horizon {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------- Focus & motion ---------- */

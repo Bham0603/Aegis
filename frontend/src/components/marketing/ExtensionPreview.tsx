@@ -1,16 +1,18 @@
-"use client";
+﻿"use client";
+
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { StatusDot } from "./StatusDot";
 
 /**
- * Extension preview — honest to the shipped product:
+ * Extension preview â€” honest to the shipped product:
  * Aegis ships today as a VS Code extension (extension/ directory),
  * not a browser extension. This visualization shows the IDE panel.
  */
 export function ExtensionPreview() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   return (
     <motion.div
@@ -73,13 +75,13 @@ export function ExtensionPreview() {
             <div className="flex items-center justify-between rounded-md border border-block/40 bg-block/10 px-3.5 py-2.5">
               <span className="text-xs text-foreground">Last blocked action</span>
               <span className="font-mono text-[10px] font-semibold text-block">
-                19:42:26 · db.delete
+                19:42:26 Â· db.delete
               </span>
             </div>
           </div>
 
           <p className="mt-4 font-mono text-[10px] text-foreground-muted">
-            Commands: Aegis: Set API Key · Approve · Deny · Run Attack Lab
+            Commands: Aegis: Set API Key Â· Approve Â· Deny Â· Run Attack Lab
           </p>
         </div>
       </div>

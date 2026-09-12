@@ -88,7 +88,9 @@ export function AegisPrompt() {
       }
     };
 
-    schedule(() => typeQuestion(questionIndex, 0), 900);
+    // Start after the page-load reveal: the prompt wrapper finishes
+    // fading in at ~950ms, so typing begins after a deliberate pause.
+    schedule(() => typeQuestion(questionIndex, 0), 1400);
 
     return () => {
       cancelled = true;
@@ -104,7 +106,7 @@ export function AegisPrompt() {
 
   return (
     <div
-      className="aegis-prompt group relative mx-auto w-full max-w-2xl"
+      className="aegis-prompt group relative mx-auto w-full max-w-[540px]"
       tabIndex={0}
       role="group"
       aria-label="Aegis prompt — example questions you can ask about your agents' security"

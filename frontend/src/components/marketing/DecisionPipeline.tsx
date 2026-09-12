@@ -1,21 +1,23 @@
-"use client";
+﻿"use client";
+
+import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 
 const PIPELINE_STAGES = [
   { label: "ACTION", desc: "Agent intent is intercepted" },
   { label: "CONTEXT", desc: "Agent, tool and session verified" },
   { label: "THREAT ANALYSIS", desc: "Deterministic detectors run" },
-  { label: "RISK SCORE", desc: "Explainable 0–100 assessment" },
+  { label: "RISK SCORE", desc: "Explainable 0â€“100 assessment" },
   { label: "POLICY", desc: "Rules evaluated with precedence" },
-  { label: "DECISION", desc: "ALLOW · REVIEW · BLOCK" },
+  { label: "DECISION", desc: "ALLOW Â· REVIEW Â· BLOCK" },
 ] as const;
 
-/** Vertical decision pipeline: the OBSERVE → DETECT → DECIDE → ENFORCE mental model. */
+/** Vertical decision pipeline: the OBSERVE â†’ DETECT â†’ DECIDE â†’ ENFORCE mental model. */
 export function DecisionPipeline() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSafeReducedMotion();
 
   return (
     <ol className="relative space-y-0">

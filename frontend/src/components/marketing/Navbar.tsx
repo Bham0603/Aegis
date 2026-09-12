@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight } from "lucide-react";
@@ -17,22 +17,32 @@ const NAV_LINKS = [
 ];
 
 export function Navbar() {
+  const scrolledRef = useRef(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      const next = window.scrollY > 8;
+      if (next !== scrolledRef.current) {
+        scrolledRef.current = next;
+        setScrolled(next);
+      }
+    };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const closeMenu = () => setMenuOpen(false);
+  const isHomePage = pathname === "/";
 
   return (
     <header
       className={cn(
         "sticky top-0 z-40 border-b transition-colors duration-200",
+        isHomePage && "aegis-rise-navbar",
         scrolled
           ? "border-border-base/70 bg-background/80 backdrop-blur-md"
           : "border-transparent bg-background/0 backdrop-blur-[2px]"
