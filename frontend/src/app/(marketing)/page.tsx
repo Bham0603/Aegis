@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Terminal, Workflow, Eye, Lock, ChevronDown } from "lucide-react";
+import { CinematicHero } from "@/components/marketing/CinematicHero";
 import { GlowBackground } from "@/components/marketing/GlowBackground";
 import { SectionHeading } from "@/components/marketing/SectionHeading";
 import { SecurityConsole } from "@/components/marketing/SecurityConsole";
@@ -18,51 +20,20 @@ import {
   UnauthorizedActionViz,
 } from "@/components/marketing/FeatureCard";
 
+export const metadata: Metadata = {
+  title: "Aegis — The Security Layer for AI Agents",
+  description:
+    "Aegis is an intelligent security layer for autonomous AI agents — detecting prompt injection, unsafe actions, sensitive-data exposure and suspicious behavior before they become incidents.",
+};
+
 export default function HomePage() {
   return (
     <>
-      {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden">
-        <GlowBackground />
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pt-24 lg:pb-28">
-          <div className="grid items-center gap-14 lg:grid-cols-2">
-            <div>
-              <p className="eyebrow">The security layer for AI agents</p>
-              <h1 className="headline mt-4 text-4xl sm:text-5xl lg:text-6xl">
-                Let your agents act.
-                <br />
-                <span className="text-accent">Aegis keeps them safe.</span>
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-                Aegis is an intelligent security layer for autonomous AI
-                agents — detecting prompt injection, unsafe actions,
-                sensitive-data exposure and suspicious behavior before they
-                become incidents.
-              </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/signup" className="btn-primary">
-                  Get Started
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-                <Link href="/login" className="btn-secondary">
-                  View Security Console
-                </Link>
-              </div>
-              <p className="mt-6 inline-flex items-center gap-2 font-mono text-xs text-foreground-muted">
-                <Terminal className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
-                Open source · Python SDK · MCP gateway
-              </p>
-            </div>
+      {/* ============ 01–03 · HERO + AEGIS PROMPT + BLACK HORIZON ============ */}
+      <CinematicHero />
 
-            <div className="lg:pl-6">
-              <SecurityConsole />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ CORE CONCEPT ============ */}
-      <section className="border-t border-border-base/60 bg-background-secondary">
+      {/* ============ 04 · CORE CONCEPT ============ */}
+      <section className="relative border-t border-border-base/60 bg-background-secondary">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
@@ -104,6 +75,21 @@ export default function HomePage() {
                 <FlowNode icon={null} label="Data / APIs" sub="external calls" compact />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 05 · SECURITY CONSOLE ============ */}
+      <section id="security-console" className="relative overflow-x-clip">
+        <GlowBackground />
+        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+          <SectionHeading
+            eyebrow="Security console"
+            title="See what Aegis sees."
+            description="Every action your agents take is intercepted, evaluated and decided — allowed, flagged for review, or blocked."
+          />
+          <div className="mx-auto mt-14 max-w-3xl">
+            <SecurityConsole />
           </div>
         </div>
       </section>
@@ -150,7 +136,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ DECISION ENGINE ============ */}
+      {/* ============ 06 · DECISION ENGINE ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <div className="grid gap-14 lg:grid-cols-[1fr_1.2fr] lg:items-center">
@@ -199,8 +185,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ ATTACK SIMULATION ============ */}
-      <section className="relative overflow-hidden">
+      {/* ============ 07 · ATTACK SIMULATION ============ */}
+      <section className="relative overflow-x-clip">
         <GlowBackground />
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <SectionHeading
@@ -214,7 +200,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ DASHBOARD PREVIEW ============ */}
+      {/* ============ 08 · DASHBOARD PREVIEW ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <SectionHeading
@@ -228,7 +214,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ COPILOT ============ */}
+      {/* ============ 09 · AEGIS COPILOT ============ */}
       <section>
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
@@ -236,9 +222,9 @@ export default function HomePage() {
               <CopilotPreview />
             </div>
             <div className="order-1 lg:order-2">
-              <p className="eyebrow">Aegis Copilot</p>
+              <p className="eyebrow">Aegis Copilot — AI security analyst</p>
               <h2 className="headline mt-4 text-3xl sm:text-4xl">
-                An AI security analyst on your data.
+                Ask your security data anything.
               </h2>
               <p className="mt-5 text-base leading-relaxed text-muted">
                 Ask questions about security events, threats, agents, risk
@@ -251,6 +237,8 @@ export default function HomePage() {
                   "Show me the highest-risk event today.",
                   "Which agent has the highest risk?",
                   "What caused my security score to drop?",
+                  "Explain this prompt injection.",
+                  "Are any credentials exposed?",
                 ].map((q) => (
                   <li key={q} className="flex items-start gap-2.5">
                     <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 rotate-[-90deg] text-accent" aria-hidden="true" />
@@ -263,12 +251,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ EXTENSION ============ */}
+      {/* ============ 10 · VS CODE EXTENSION ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="eyebrow">Developer tooling</p>
+              <p className="eyebrow">Aegis for VS Code</p>
               <h2 className="headline mt-4 text-3xl sm:text-4xl">
                 Security follows your agent.
               </h2>
@@ -302,7 +290,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ POLICY ENGINE ============ */}
+      {/* ============ 11 · POLICY ENGINE ============ */}
       <section>
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
@@ -322,14 +310,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ TIMELINE + AUDIENCES ============ */}
+      {/* ============ 12–13 · TIMELINE + AUDIENCES ============ */}
       <section className="border-t border-border-base/60 bg-background-secondary">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
           <div className="grid gap-14 lg:grid-cols-[1fr_1.4fr]">
             <div>
               <p className="eyebrow">Full traceability</p>
               <h2 className="headline mt-4 text-3xl sm:text-4xl">
-                From incident to answer.
+                Trace what happened.
               </h2>
               <p className="mt-5 text-base leading-relaxed text-muted">
                 Every decision is recorded in an append-only, redacted audit
@@ -366,10 +354,34 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ FINAL CTA ============ */}
-      <section className="relative overflow-hidden border-t border-border-base/60">
-        <GlowBackground />
-        <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 lg:py-32">
+      {/* ============ 14 · PRICING ============ */}
+      <section>
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
+          <SectionHeading
+            eyebrow="Pricing"
+            title="Protect your agents at any scale."
+            description="Start free with the open-source release. Scale to teams and enterprises when your agents touch production."
+          />
+          <div className="mt-12 text-center">
+            <Link href="/pricing" className="btn-secondary">
+              View pricing
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 15 · FINAL CTA ============ */}
+      <section className="relative overflow-x-clip border-t border-border-base/60">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+        >
+          <div className="hero-glow-broad" />
+          <div className="hero-glow-core" />
+          <div className="cta-horizon" />
+        </div>
+        <div className="relative mx-auto max-w-7xl px-4 py-28 text-center sm:px-6 lg:py-36">
           <h2 className="headline mx-auto max-w-2xl text-4xl sm:text-5xl">
             Give your agents
             <br />
@@ -379,7 +391,7 @@ export default function HomePage() {
             Start protecting autonomous AI today.
           </p>
           <Link href="/signup" className="btn-primary mt-8">
-            Get Aegis
+            Get Started
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>

@@ -11,6 +11,7 @@ const EXAMPLE_QUESTIONS = [
   "Show me the highest-risk event today.",
   "Which agent has the highest risk?",
   "Are any credentials exposed?",
+  "Explain this prompt injection.",
 ];
 
 /**

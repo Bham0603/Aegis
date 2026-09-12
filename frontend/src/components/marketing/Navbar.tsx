@@ -34,8 +34,8 @@ export function Navbar() {
       className={cn(
         "sticky top-0 z-40 border-b transition-colors duration-200",
         scrolled
-          ? "border-border-base bg-background/85 backdrop-blur-md"
-          : "border-transparent bg-transparent"
+          ? "border-border-base/70 bg-background/80 backdrop-blur-md"
+          : "border-transparent bg-background/0 backdrop-blur-[2px]"
       )}
     >
       <nav

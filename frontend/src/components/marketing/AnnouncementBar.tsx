@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shield } from "lucide-react";
 
 /**
@@ -10,7 +11,14 @@ export function AnnouncementBar() {
       <p className="mx-auto max-w-7xl px-4 py-2 text-center text-xs tracking-wide text-foreground-muted sm:px-6">
         Aegis is building security for the agentic era
         <span className="mx-2 text-border-strong" aria-hidden="true">·</span>
-        <span className="text-accent">V1.0 Release Candidate now on GitHub</span>
+        <Link
+          href="https://github.com/Bham0603/Aegis"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent underline-offset-2 transition-colors hover:text-foreground hover:underline"
+        >
+          V1.0 Release Candidate → GitHub
+        </Link>
       </p>
     </div>
   );

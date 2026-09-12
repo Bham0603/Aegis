@@ -24,7 +24,7 @@ export function ExtensionPreview() {
       <div className="flex items-center justify-between border-b border-border-base bg-card px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-semibold tracking-widest text-foreground">
-            VS CODE
+            AEGIS FOR VS CODE
           </span>
           <span className="font-mono text-[10px] text-foreground-muted">
             aegis-security-console
@@ -52,15 +52,23 @@ export function ExtensionPreview() {
 
           <div className="mt-4 space-y-2.5">
             <div className="flex items-center justify-between rounded-md border border-border-base bg-background/60 px-3.5 py-2.5">
-              <span className="text-xs text-foreground">Environment status</span>
+              <span className="text-xs text-foreground">Workspace</span>
+              <span className="font-mono text-xs text-foreground-muted">aegis</span>
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border-base bg-background/60 px-3.5 py-2.5">
+              <span className="text-xs text-foreground">Agent</span>
+              <span className="font-mono text-xs text-foreground-muted">Research Agent</span>
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-allow/30 bg-allow/5 px-3.5 py-2.5">
+              <span className="text-xs text-foreground">Threat status</span>
               <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-allow">
                 <StatusDot tone="safe" />
-                PROTECTED
+                SAFE
               </span>
             </div>
             <div className="flex items-center justify-between rounded-md border border-border-base bg-background/60 px-3.5 py-2.5">
-              <span className="text-xs text-foreground">Pending approvals</span>
-              <span className="font-mono text-xs text-foreground">1</span>
+              <span className="text-xs text-foreground">Recent events</span>
+              <span className="font-mono text-xs text-foreground">3</span>
             </div>
             <div className="flex items-center justify-between rounded-md border border-block/40 bg-block/10 px-3.5 py-2.5">
               <span className="text-xs text-foreground">Last blocked action</span>

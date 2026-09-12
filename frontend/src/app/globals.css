@@ -2,9 +2,9 @@
 
 /* ============================================================
    AEGIS DESIGN SYSTEM
-   Primary bg #050505 · Secondary #0A0A0A · Card #0D0D0D
-   Elevated #111111 · Border #232323 · Accent #D8FF3E
-   Text #F5F5F0 · Muted #969690
+   Background #050505 · Deep black #000000 · Surface #0D0D0D
+   Elevated #111111 · Border #252525 · Accent #DFFF3F
+   Text #F4F3E8 · Secondary #C9C8BE · Muted #777770
    Semantic: SAFE lime · REVIEW amber · BLOCKED red · NEUTRAL gray
    ============================================================ */
 
@@ -13,16 +13,17 @@
   --background-secondary: #0a0a0a;
   --card: #0d0d0d;
   --card-elevated: #111111;
-  --border: #232323;
-  --border-strong: #2e2e2e;
-  --accent: #d8ff3e;
-  --accent-dim: rgba(216, 255, 62, 0.14);
-  --accent-border: rgba(216, 255, 62, 0.28);
-  --foreground: #f5f5f0;
-  --foreground-muted: #969690;
+  --border: #252525;
+  --border-strong: #303030;
+  --accent: #dfff3f;
+  --accent-dim: rgba(223, 255, 63, 0.1);
+  --accent-border: rgba(223, 255, 63, 0.18);
+  --foreground: #f4f3e8;
+  --foreground-secondary: #c9c8be;
+  --foreground-muted: #777770;
 
   /* Semantic status colors — never decorative */
-  --color-allow: #d8ff3e;
+  --color-allow: #dfff3f;
   --color-review: #f5b942;
   --color-block: #ff5a5f;
 
@@ -44,6 +45,7 @@
   --color-accent-dim: var(--accent-dim);
   --color-accent-border: var(--accent-border);
   --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
   --color-foreground-muted: var(--foreground-muted);
 
   --color-allow: var(--color-allow);
@@ -61,6 +63,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -68,11 +71,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgba(216, 255, 62, 0.25);
+  background: rgba(223, 255, 63, 0.25);
   color: var(--foreground);
 }
 
@@ -81,7 +85,7 @@ body {
 .glow-top {
   background-image: radial-gradient(
     ellipse 80% 50% at 50% -12%,
-    rgba(216, 255, 62, 0.07),
+    rgba(223, 255, 63, 0.07),
     transparent 70%
   );
 }
@@ -89,16 +93,133 @@ body {
 .glow-accent {
   background-image: radial-gradient(
     ellipse 60% 60% at 50% 50%,
-    rgba(216, 255, 62, 0.06),
+    rgba(223, 255, 63, 0.06),
     transparent 70%
   );
 }
 
 .grid-lines {
   background-image:
-    linear-gradient(to right, rgba(245, 245, 240, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(245, 245, 240, 0.025) 1px, transparent 1px);
+    linear-gradient(to right, rgba(244, 243, 232, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244, 243, 232, 0.025) 1px, transparent 1px);
   background-size: 64px 64px;
+}
+
+/* ---------- Cinematic hero atmosphere ----------
+   Black page with subtle green illumination. Layered:
+   broad low glow → concentrated core glow → faint grid → vignette. */
+
+.hero-glow-broad {
+  background-image: radial-gradient(
+    ellipse 75% 42% at 50% 56%,
+    rgba(223, 255, 63, 0.09),
+    transparent 70%
+  );
+}
+
+.hero-glow-core {
+  background-image: radial-gradient(
+    ellipse 44% 26% at 50% 62%,
+    rgba(223, 255, 63, 0.15),
+    transparent 72%
+  );
+  animation: glow-drift 9s ease-in-out infinite alternate;
+}
+
+@keyframes glow-drift {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(14px) scale(1.05);
+  }
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgba(244, 243, 232, 0.016) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244, 243, 232, 0.016) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 30%, black 25%, transparent 72%);
+}
+
+.hero-vignette {
+  background-image: radial-gradient(
+    ellipse 100% 100% at 50% 44%,
+    transparent 42%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+/* ---------- Cinematic hero horizon ----------
+   Enormous black dome emerging from the lower hero — a security
+   boundary. Oversized ellipse, clipped to the section by its parent
+   overflow-hidden wrapper so it never bleeds into the next section
+   or creates horizontal scroll. */
+
+.hero-horizon {
+  position: absolute;
+  left: 50%;
+  bottom: -104vh;
+  bottom: -104svh;
+  width: 180vw;
+  height: 145vh;
+  height: 145svh;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background-color: #000000;
+  background-image: radial-gradient(
+    ellipse 55% 100% at 50% 0%,
+    rgba(223, 255, 63, 0.05),
+    transparent 58%
+  );
+  box-shadow:
+    0 -1px 0 0 rgba(223, 255, 63, 0.2),
+    0 -16px 60px -12px rgba(223, 255, 63, 0.18),
+    0 -100px 240px -40px rgba(223, 255, 63, 0.07);
+  pointer-events: none;
+}
+
+/* Compact horizon variant for the final CTA section. */
+.cta-horizon {
+  position: absolute;
+  left: 50%;
+  bottom: -30vh;
+  bottom: -30svh;
+  width: 180vw;
+  height: 46vh;
+  height: 46svh;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background-color: #000000;
+  box-shadow:
+    0 -1px 0 0 rgba(223, 255, 63, 0.14),
+    0 -14px 50px -14px rgba(223, 255, 63, 0.12);
+  pointer-events: none;
+}
+
+/* ---------- Typewriter caret ---------- */
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.prompt-caret {
+  display: inline-block;
+  width: 7px;
+  height: 1.05em;
+  margin-left: 3px;
+  border-radius: 1px;
+  background-color: var(--accent);
+  animation: caret-blink 1.06s step-end infinite;
+  vertical-align: text-bottom;
+  flex-shrink: 0;
 }
 
 /* ---------- Surfaces ---------- */
@@ -186,7 +307,7 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #e6ff70;
+  background-color: #eaff70;
 }
 
 .btn-secondary {
@@ -214,6 +335,10 @@ body {
   color: var(--foreground-muted);
 }
 
+.text-secondary {
+  color: var(--foreground-secondary);
+}
+
 .eyebrow {
   font-size: 0.75rem;
   letter-spacing: 0.2em;
@@ -223,7 +348,7 @@ body {
 }
 
 .headline {
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.05;
 }
@@ -239,11 +364,11 @@ body {
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(216, 255, 62, 0.4);
+    box-shadow: 0 0 0 0 rgba(223, 255, 63, 0.4);
   }
   50% {
     opacity: 0.75;
-    box-shadow: 0 0 0 4px rgba(216, 255, 62, 0);
+    box-shadow: 0 0 0 4px rgba(223, 255, 63, 0);
   }
 }
 
@@ -282,6 +407,10 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .prompt-caret {
+    animation: none;
+    opacity: 1;
   }
 }
 
