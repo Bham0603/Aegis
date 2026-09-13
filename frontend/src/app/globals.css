@@ -582,20 +582,21 @@ body {
      ~600ms  prompt emerging
      ~700ms  horizon edge-light emerging
      ~1050ms everything settled at full brightness */
-
-@keyframes aegis-page-power-on {
+@keyframes aegis-fused-scale-fade {
   from {
-    opacity: 0.35;
+    opacity: 0;
+    transform: scale(0.7);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
-@keyframes aegis-fade-up {
+@keyframes aegis-fused-slide-up {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -612,42 +613,40 @@ body {
   }
 }
 
-/* Page-level dim on the hero composition (homepage only). Animates
-   the section from 0.35 opacity — the "very dark at 0ms" state. */
+/* Page-level marker for the hero composition (homepage only). */
 .aegis-power-on {
-  animation: aegis-page-power-on 0.5s ease-out both;
+  /* Removed generic section opacity fade to allow children's true opacity to show immediately */
 }
 
-/* Staggered element reveals — matching Fused power-on sequence.
-   0.0s: Prompt, title, subtitle, CTAs appear
-   0.2s: Navbar fades in
-   0.3s: Atmosphere (glow) fades in
-   0.7s: Horizon fades in */
+/* Staggered element reveals — matching exact Fused.io power-on sequence. */
+
+.aegis-rise-headline,
+.aegis-rise-eyebrow,
+.aegis-rise-copy {
+  animation: aegis-fused-scale-fade 1.6s cubic-bezier(0.67, 0.33, 0.23, 1.02) 0s both;
+}
 
 .aegis-rise-prompt,
-.aegis-rise-eyebrow,
-.aegis-rise-headline,
-.aegis-rise-copy,
 .aegis-rise-cta {
-  animation: aegis-fade-in 1.2s ease-out 0s both;
+  animation: aegis-fade-in 0.2s ease-out 0s both;
 }
 
 .aegis-rise-navbar {
-  animation: aegis-fade-in 1.2s ease-out 0.2s both;
+  animation: aegis-fade-in 1.6s cubic-bezier(0.67, 0.33, 0.23, 1.02) 0.2s both;
 }
 
 .aegis-rise-atmosphere {
-  animation: aegis-fade-in 1.5s ease-out 0.3s both;
+  animation: aegis-fade-in 1.0s ease-out 0.3s both;
 }
 
 .aegis-rise-horizon {
-  animation: aegis-fade-in 1.0s ease-out 0.7s both;
+  animation: aegis-fused-slide-up 0.8s ease-out 0.7s both;
 }
 
 /* The announcement strip above the navbar joins the homepage
    power-on sequence via :has() — no JS, no layout change. */
 body:has(.aegis-power-on) .announcement-bar {
-  animation: aegis-fade-in 1.2s ease-out 0.2s both;
+  animation: aegis-fade-in 1.6s cubic-bezier(0.67, 0.33, 0.23, 1.02) 0.2s both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -660,9 +659,9 @@ body:has(.aegis-power-on) .announcement-bar {
   .aegis-rise-prompt,
   .aegis-rise-cta,
   .aegis-rise-horizon {
-    animation: none;
-    opacity: 1;
-    transform: none;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 

@@ -9,6 +9,45 @@ We have successfully restored the approved visuals and added the requested inter
 ## Latest Task
 
 **Date / time:** 2026-09-13
+**Task:** Exact Fused hero entrance animation replication
+
+### Fused Inspection
+Browser subagent parsed document.getAnimations() on a live fresh load of https://www.fused.io/. Discovered exact timings, easings, and techniques using Framer Motion values.
+
+### Animation technique discovered
+- Headline: Starts at scale(0.7), fades in to scale(1) with a 1.02 cubic-bezier overshoot curve.
+- Horizon: Starts at 	ranslateY(40px), slides up and fades in.
+
+### Timing
+- 0ms: Headline, Subtitle, CTAs, Prompt start to scale/fade over 1.6s and 0.2s.
+- 200ms: Navbar fades in.
+- 300ms: Atmosphere fades in.
+- 700ms: Horizon slides up from 40px below.
+
+### Aegis Implementation
+Defined @keyframes aegis-fused-scale-fade, egis-fused-slide-up, and egis-fade-in with the exact Fused timing properties. Replaced generic egis-fade-up and overall opacity fade in globals.css with these targeted timelines.
+
+### Files Modified
+- rontend/src/app/globals.css
+
+### Regression
+PASS. Final visuals are unchanged. Prompt ring clockwise animation preserved. Typewriter preserved.
+
+### Browser Verification
+Successfully visually checked via CDP trace frame timeline on http://localhost:3000/. Headline scales correctly, horizon slides up correctly, exact sequence matched.
+
+### Tests
+Not applicable.
+
+### Known Issues
+None.
+
+---
+
+## Previous Entry
+
+
+**Date / time:** 2026-09-13
 **Task:** Aegis Fused-style Hero Power-on Reveal Replication
 
 ### Objective
@@ -130,6 +169,45 @@ The user identified regressions in the latest uncommitted changes. We executed a
 ## Previous Entry
 
 ## Latest Task
+
+**Date / time:** 2026-09-13
+**Task:** Exact Fused hero entrance animation replication
+
+### Fused Inspection
+Browser subagent parsed document.getAnimations() on a live fresh load of https://www.fused.io/. Discovered exact timings, easings, and techniques using Framer Motion values.
+
+### Animation technique discovered
+- Headline: Starts at scale(0.7), fades in to scale(1) with a 1.02 cubic-bezier overshoot curve.
+- Horizon: Starts at 	ranslateY(40px), slides up and fades in.
+
+### Timing
+- 0ms: Headline, Subtitle, CTAs, Prompt start to scale/fade over 1.6s and 0.2s.
+- 200ms: Navbar fades in.
+- 300ms: Atmosphere fades in.
+- 700ms: Horizon slides up from 40px below.
+
+### Aegis Implementation
+Defined @keyframes aegis-fused-scale-fade, egis-fused-slide-up, and egis-fade-in with the exact Fused timing properties. Replaced generic egis-fade-up and overall opacity fade in globals.css with these targeted timelines.
+
+### Files Modified
+- rontend/src/app/globals.css
+
+### Regression
+PASS. Final visuals are unchanged. Prompt ring clockwise animation preserved. Typewriter preserved.
+
+### Browser Verification
+Successfully visually checked via CDP trace frame timeline on http://localhost:3000/. Headline scales correctly, horizon slides up correctly, exact sequence matched.
+
+### Tests
+Not applicable.
+
+### Known Issues
+None.
+
+---
+
+## Previous Entry
+
 
 **Date / time:** 2026-09-13
 **Task:** Aegis Fused-style Hero Power-on Reveal Replication
@@ -331,6 +409,45 @@ Commit the verified work as a focused commit (hero visual system + hydration-saf
 ## Latest Task
 
 **Date / time:** 2026-09-13
+**Task:** Exact Fused hero entrance animation replication
+
+### Fused Inspection
+Browser subagent parsed document.getAnimations() on a live fresh load of https://www.fused.io/. Discovered exact timings, easings, and techniques using Framer Motion values.
+
+### Animation technique discovered
+- Headline: Starts at scale(0.7), fades in to scale(1) with a 1.02 cubic-bezier overshoot curve.
+- Horizon: Starts at 	ranslateY(40px), slides up and fades in.
+
+### Timing
+- 0ms: Headline, Subtitle, CTAs, Prompt start to scale/fade over 1.6s and 0.2s.
+- 200ms: Navbar fades in.
+- 300ms: Atmosphere fades in.
+- 700ms: Horizon slides up from 40px below.
+
+### Aegis Implementation
+Defined @keyframes aegis-fused-scale-fade, egis-fused-slide-up, and egis-fade-in with the exact Fused timing properties. Replaced generic egis-fade-up and overall opacity fade in globals.css with these targeted timelines.
+
+### Files Modified
+- rontend/src/app/globals.css
+
+### Regression
+PASS. Final visuals are unchanged. Prompt ring clockwise animation preserved. Typewriter preserved.
+
+### Browser Verification
+Successfully visually checked via CDP trace frame timeline on http://localhost:3000/. Headline scales correctly, horizon slides up correctly, exact sequence matched.
+
+### Tests
+Not applicable.
+
+### Known Issues
+None.
+
+---
+
+## Previous Entry
+
+
+**Date / time:** 2026-09-13
 **Task:** Aegis Fused-style Hero Power-on Reveal Replication
 
 ### Objective
@@ -411,6 +528,45 @@ Review the rendered marketing page and commit the visual system updates.
 ---
 
 ## Latest Task
+
+**Date / time:** 2026-09-13
+**Task:** Exact Fused hero entrance animation replication
+
+### Fused Inspection
+Browser subagent parsed document.getAnimations() on a live fresh load of https://www.fused.io/. Discovered exact timings, easings, and techniques using Framer Motion values.
+
+### Animation technique discovered
+- Headline: Starts at scale(0.7), fades in to scale(1) with a 1.02 cubic-bezier overshoot curve.
+- Horizon: Starts at 	ranslateY(40px), slides up and fades in.
+
+### Timing
+- 0ms: Headline, Subtitle, CTAs, Prompt start to scale/fade over 1.6s and 0.2s.
+- 200ms: Navbar fades in.
+- 300ms: Atmosphere fades in.
+- 700ms: Horizon slides up from 40px below.
+
+### Aegis Implementation
+Defined @keyframes aegis-fused-scale-fade, egis-fused-slide-up, and egis-fade-in with the exact Fused timing properties. Replaced generic egis-fade-up and overall opacity fade in globals.css with these targeted timelines.
+
+### Files Modified
+- rontend/src/app/globals.css
+
+### Regression
+PASS. Final visuals are unchanged. Prompt ring clockwise animation preserved. Typewriter preserved.
+
+### Browser Verification
+Successfully visually checked via CDP trace frame timeline on http://localhost:3000/. Headline scales correctly, horizon slides up correctly, exact sequence matched.
+
+### Tests
+Not applicable.
+
+### Known Issues
+None.
+
+---
+
+## Previous Entry
+
 
 **Date / time:** 2026-09-13
 **Task:** Aegis Fused-style Hero Power-on Reveal Replication
