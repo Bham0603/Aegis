@@ -613,51 +613,41 @@ body {
 }
 
 /* Page-level dim on the hero composition (homepage only). Animates
-   the section from 0.35 opacity ÔÇö the "very dark at 0ms" state. */
+   the section from 0.35 opacity — the "very dark at 0ms" state. */
 .aegis-power-on {
   animation: aegis-page-power-on 0.5s ease-out both;
 }
 
-/* Staggered element reveals ÔÇö full composition settled ~1s.
-   Timeline per the reference: atmosphere ~200ms, navbar ~350ms,
-   headline ~500ms, copy ~550ms, prompt ~600ms, horizon ~700ms. */
+/* Staggered element reveals — matching Fused power-on sequence.
+   0.0s: Prompt, title, subtitle, CTAs appear
+   0.2s: Navbar fades in
+   0.3s: Atmosphere (glow) fades in
+   0.7s: Horizon fades in */
 
-.aegis-rise-atmosphere {
-  animation: aegis-fade-in 0.45s ease-out 0.2s both;
+.aegis-rise-prompt,
+.aegis-rise-eyebrow,
+.aegis-rise-headline,
+.aegis-rise-copy,
+.aegis-rise-cta {
+  animation: aegis-fade-in 1.2s ease-out 0s both;
 }
 
 .aegis-rise-navbar {
-  animation: aegis-fade-in 0.4s ease-out 0.35s both;
+  animation: aegis-fade-in 1.2s ease-out 0.2s both;
 }
 
-.aegis-rise-eyebrow {
-  animation: aegis-fade-up 0.4s ease-out 0.45s both;
-}
-
-.aegis-rise-headline {
-  animation: aegis-fade-up 0.45s ease-out 0.5s both;
-}
-
-.aegis-rise-copy {
-  animation: aegis-fade-up 0.35s ease-out 0.55s both;
-}
-
-.aegis-rise-prompt {
-  animation: aegis-fade-up 0.35s ease-out 0.6s both;
-}
-
-.aegis-rise-cta {
-  animation: aegis-fade-up 0.3s ease-out 0.65s both;
+.aegis-rise-atmosphere {
+  animation: aegis-fade-in 1.5s ease-out 0.3s both;
 }
 
 .aegis-rise-horizon {
-  animation: aegis-fade-in 0.3s ease-out 0.7s both;
+  animation: aegis-fade-in 1.0s ease-out 0.7s both;
 }
 
 /* The announcement strip above the navbar joins the homepage
-   power-on sequence via :has() ÔÇö no JS, no layout change. */
+   power-on sequence via :has() — no JS, no layout change. */
 body:has(.aegis-power-on) .announcement-bar {
-  animation: aegis-fade-in 0.35s ease-out 0.3s both;
+  animation: aegis-fade-in 1.2s ease-out 0.2s both;
 }
 
 @media (prefers-reduced-motion: reduce) {

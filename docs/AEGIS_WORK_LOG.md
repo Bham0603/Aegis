@@ -9,6 +9,26 @@ We have successfully restored the approved visuals and added the requested inter
 ## Latest Task
 
 **Date / time:** 2026-09-13
+**Task:** Aegis Fused-style Hero Power-on Reveal Replication
+
+### Objective
+Accurately replicated the exact Fused hero power-on reveal sequence without any large movements, zoom, bounce, or overshoot.
+
+### Changes Made
+- rontend/src/app/globals.css: Rewrote the .aegis-rise-* animation timeline. Prompt and all text elements now fade in first at 0.0s, followed by the navbar at 0.2s, the atmosphere glow at 0.3s, and the horizon line at 0.7s, perfectly mirroring the Fused sequence. Changed egis-fade-up to egis-fade-in to ensure no layout shift or 	ranslateY movement.
+
+### Verification
+Browser automation verified the timing using CDP tracking and element screenshots. Confirmed no white flash on reload, and no layout shifts or bounces.
+
+### Regression
+PASS — No other styles or elements were modified. The site maintains the approved Aegis visual design.
+
+---
+
+## Previous Entry
+
+
+**Date / time:** 2026-09-13
 **Task:** Aegis four-feature restoration and Gemini prompt integration
 
 ### Feature 1 — Clockwise perimeter
@@ -110,6 +130,26 @@ The user identified regressions in the latest uncommitted changes. We executed a
 ## Previous Entry
 
 ## Latest Task
+
+**Date / time:** 2026-09-13
+**Task:** Aegis Fused-style Hero Power-on Reveal Replication
+
+### Objective
+Accurately replicated the exact Fused hero power-on reveal sequence without any large movements, zoom, bounce, or overshoot.
+
+### Changes Made
+- rontend/src/app/globals.css: Rewrote the .aegis-rise-* animation timeline. Prompt and all text elements now fade in first at 0.0s, followed by the navbar at 0.2s, the atmosphere glow at 0.3s, and the horizon line at 0.7s, perfectly mirroring the Fused sequence. Changed egis-fade-up to egis-fade-in to ensure no layout shift or 	ranslateY movement.
+
+### Verification
+Browser automation verified the timing using CDP tracking and element screenshots. Confirmed no white flash on reload, and no layout shifts or bounces.
+
+### Regression
+PASS — No other styles or elements were modified. The site maintains the approved Aegis visual design.
+
+---
+
+## Previous Entry
+
 
 **Date / time:** 2026-09-12, ~19:00 UTC
 **Task:** AEGIS live Fused visual replication phase
@@ -290,6 +330,26 @@ Commit the verified work as a focused commit (hero visual system + hydration-saf
 
 ## Latest Task
 
+**Date / time:** 2026-09-13
+**Task:** Aegis Fused-style Hero Power-on Reveal Replication
+
+### Objective
+Accurately replicated the exact Fused hero power-on reveal sequence without any large movements, zoom, bounce, or overshoot.
+
+### Changes Made
+- rontend/src/app/globals.css: Rewrote the .aegis-rise-* animation timeline. Prompt and all text elements now fade in first at 0.0s, followed by the navbar at 0.2s, the atmosphere glow at 0.3s, and the horizon line at 0.7s, perfectly mirroring the Fused sequence. Changed egis-fade-up to egis-fade-in to ensure no layout shift or 	ranslateY movement.
+
+### Verification
+Browser automation verified the timing using CDP tracking and element screenshots. Confirmed no white flash on reload, and no layout shifts or bounces.
+
+### Regression
+PASS — No other styles or elements were modified. The site maintains the approved Aegis visual design.
+
+---
+
+## Previous Entry
+
+
 **Date / time:** 2026-09-12, ~19:15 UTC
 **Task:** Full live Fused visual/interaction audit + Aegis replication
 
@@ -345,11 +405,32 @@ Review the rendered marketing page and commit the visual system updates.
  
  # #   N e x t   S t e p 
  N E X T :   R e v i e w   t h e   r e n d e r e d   F u s e d   r e p l i c a t i o n   o n   t h e   d e v   s e r v e r ,   a n d   i f   a c c e p t a b l e ,   d e p l o y   t o   p r e v i e w   o r   c o m m i t   t o   v e r s i o n   c o n t r o l . 
-  
+ 
+ 
  
 ---
 
 ## Latest Task
+
+**Date / time:** 2026-09-13
+**Task:** Aegis Fused-style Hero Power-on Reveal Replication
+
+### Objective
+Accurately replicated the exact Fused hero power-on reveal sequence without any large movements, zoom, bounce, or overshoot.
+
+### Changes Made
+- rontend/src/app/globals.css: Rewrote the .aegis-rise-* animation timeline. Prompt and all text elements now fade in first at 0.0s, followed by the navbar at 0.2s, the atmosphere glow at 0.3s, and the horizon line at 0.7s, perfectly mirroring the Fused sequence. Changed egis-fade-up to egis-fade-in to ensure no layout shift or 	ranslateY movement.
+
+### Verification
+Browser automation verified the timing using CDP tracking and element screenshots. Confirmed no white flash on reload, and no layout shifts or bounces.
+
+### Regression
+PASS — No other styles or elements were modified. The site maintains the approved Aegis visual design.
+
+---
+
+## Previous Entry
+
 
 **Date / time:** 2026-09-13
 **Task:** Fixed CSS parsing error in globals.css
