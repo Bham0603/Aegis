@@ -2,7 +2,34 @@
 
 ## Current Status
 
-The Aegis project has a fully implemented Next.js 16 (App Router, Tailwind v4) frontend — marketing site (/, /docs, /how-it-works, /pricing, /product, /security, /extension), auth pages, and an 18-route dashboard — plus the completed backend, SDK, MCP Gateway, and VS Code extension (Phases 1–17 in git history). The hero's Fused-inspired visual system (centered composition, luminous headline, animated prompt, black curved horizon, power-on reveal) has now been through a final measured refinement pass: headline scaled down 14% (84px → 72px desktop), prompt narrowed to the target 540px, horizon sunk to sit below the prompt with a small transition gap, power-on timings matched to the reference sequence, perimeter border now fades in after the prompt, and the typewriter starts only after the prompt reveal settles. All gates pass and the work is uncommitted in the working tree.
+The Aegis project has a fully implemented Next.js 16 (App Router, Tailwind v4) frontend — marketing site (/, /docs, /how-it-works, /pricing, /product, /security, /extension), auth pages, and an 18-route dashboard.
+
+We have explicitly reverted recent uncommitted regressions to restore the previously approved visual state. Specifically:
+1. Reverted `Navbar.tsx` to the old approved state from `36919ee`.
+2. Restored the old cinematic page-load / power-on animation (`opacity: 0.35` starting point and `8px` translation) in `globals.css`.
+3. Restored the old clockwise search-bar perimeter glow using `@property --prompt-angle` in `globals.css`.
+
+All other hero elements (horizon, atmosphere, CTAs) remain strictly untouched per user constraints.
+
+## Latest Task
+
+**Date / time:** 2026-09-13
+**Task:** Restoration of Approved Visuals (Navbar, Power-on, Prompt Glow)
+
+## Objective
+
+The user identified regressions in the latest uncommitted changes. We executed a strictly constrained restoration to revert ONLY three specific elements back to their previously approved states, while preserving the Fused replication hero work.
+
+## Changes Made
+- `Navbar.tsx`: Checked out from `36919ee` to completely restore the previous navigation bar layout.
+- `globals.css`: Wiped uncommitted regressions to restore the `@property --prompt-angle` based prompt ring and the 0.35 opacity page-load power-on sequence. Hand-tuned `aegis-fade-up` back to `8px` translation.
+
+## Tests / Build
+- Verified `npm run build` completed with 0 errors to confirm hydration and typing integrity after the reversions.
+
+---
+
+## Previous Entry
 
 ## Latest Task
 
