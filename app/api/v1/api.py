@@ -13,6 +13,7 @@ from app.api.v1.endpoints import (
     sessions,
     tools,
     users,
+    copilot,
 )
 from app.domain.auth import Role
 
@@ -77,5 +78,11 @@ api_router.include_router(
     attack_lab.router,
     prefix="/attack-lab",
     tags=["attack-lab"],
+    dependencies=[Depends(RequireRole(Role.OPERATOR, Role.ADMIN)), rate_limit],
+)
+api_router.include_router(
+    copilot.router,
+    prefix="/copilot",
+    tags=["copilot"],
     dependencies=[Depends(RequireRole(Role.OPERATOR, Role.ADMIN)), rate_limit],
 )

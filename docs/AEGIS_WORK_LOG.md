@@ -4,14 +4,92 @@
 
 The Aegis project has a fully implemented Next.js 16 (App Router, Tailwind v4) frontend — marketing site (/, /docs, /how-it-works, /pricing, /product, /security, /extension), auth pages, and an 18-route dashboard.
 
-We have explicitly reverted recent uncommitted regressions to restore the previously approved visual state. Specifically:
-1. Reverted `Navbar.tsx` to the old approved state from `36919ee`.
-2. Restored the old cinematic page-load / power-on animation (`opacity: 0.35` starting point and `8px` translation) in `globals.css`.
-3. Restored the old clockwise search-bar perimeter glow using `@property --prompt-angle` in `globals.css`.
-
-All other hero elements (horizon, atmosphere, CTAs) remain strictly untouched per user constraints.
+We have successfully restored the approved visuals and added the requested interactive features.
 
 ## Latest Task
+
+**Date / time:** 2026-09-13
+**Task:** Aegis four-feature restoration and Gemini prompt integration
+
+### Feature 1 — Clockwise perimeter
+Status: COMPLETE (verified; pre-existing implementation confirmed working, restored via earlier fix, unchanged this session)
+- Implementation: conic-gradient with one short lime segment (`@property --prompt-angle`, compositor-only rotation, crisp 1.5px masked ring + blurred halo layer, dark center preserved)
+- Cycle duration: 9s/revolution
+- Verification: CDP probe measured `--prompt-angle` 191.99° → 313.32° over 3s (121.3°/3s ≈ 9s/360°), clockwise (increasing angle), animation `prompt-angle-rotate` + power-on fade coexisting
+
+### Feature 2 — Animated questions
+Status: COMPLETE (verified)
+- Question list (exact, all 7): "Show me today's highest-risk agent", "Why was this action blocked?", "Find suspicious agent activity", "Analyze my latest security events", "Show me potential prompt injections", "Which agent has the highest risk?", "Explain the latest threat"
+- TYPE → HOLD (2100ms) → DELETE → PAUSE (500ms) → NEXT; blinking lime caret; starts 1400ms after mount (post power-on); overlay hidden while input has value/focus so user input is never overwritten
+- Verification: CDP samples over ~13s caught mid-type ("Show me today's highest-risk agen"), mid-delete ("Show me "), full Q2 ("Why was this action blocked?"), and Q3 starting ("Find suspicious") — cycling confirmed, caret present. User-input test: typed value preserved, decorative overlay removed.
+
+### Feature 3 — Gemini search
+Status: COMPLETE (verified to provider boundary; no real Gemini key configured in this environment)
+- Authentication: reuses existing FastAPI API-key auth (`RequireRole(Role.OPERATOR, Role.ADMIN)` + rate limit on the router in `app/api/v1/api.py`); unauthenticated → 401 before any Gemini call. Frontend reuses the existing `api` client (`@/lib/api`) — Bearer token from sessionStorage, correct base URL `http://localhost:8000`, 401 handling. (Fixed this session: AegisPrompt previously used a bare relative-URL `fetch` to `/api/v1/copilot/ask` — wrong host, no auth header.)
+- Endpoint: `POST /api/v1/copilot/ask` (`app/api/v1/endpoints/copilot.py`)
+- Server-side API: google-genai SDK, `gemini-2.5-flash`, temperature 0.2, security-analyst system instruction (instructed not to fabricate Aegis data), 30s HTTP timeout, generic 502 on provider failure (no internals leaked), empty-response guard
+- Environment variable: `GEMINI_API_KEY` (server-side `.env`, gitignored; empty placeholder added). NEVER exposed to the browser — no NEXT_PUBLIC variable used.
+- Response UI: compact panel anchored below the prompt (z-20, same #141414 surface/border language) with loading state ("Aegis is analyzing…"), error text, and response text; appears only while loading/error/response exist
+- Validation: empty/whitespace → 400; >500 chars → 400; missing provider key → 503 fail-closed
+- Verification (in-page fetch from the mounted site — same code path as the app's api client): logged-out → 401 "Missing API Key or Authorization header"; logged-in (test operator key) → 503 "missing API key" (auth passed, blocked at provider boundary as expected without a real key); arbitrary custom query → same 200-path handling (not hard-coded); whitespace query → 400. A test operator principal (`Copilot Test Operator`) was created via AuthService hash flow for this verification.
+
+### Feature 4 — Power-on animation
+Status: COMPLETE (verified)
+- Timing: page dims 0.35 → atmosphere 200ms → navbar 350ms → eyebrow 450ms → headline 500ms → copy 550ms → prompt 600ms → CTA 650ms → horizon 700ms → settled ~1050ms
+- Verification: checkpoint screenshots at 0/200/400/600/800/1200ms — hero mean luminance 5.0 → 5.4 → 16.3 → 18.8 → 18.8 → 18.9 (near-black start, progressive reveal, settled within ~1.2s, no white flash); no layout shift (opacity/transform only)
+- Reduced motion: all power-on, ring, typewriter, and caret animations computed as `none` with opacity 1 immediately; prompt remains usable (input enabled); static placeholder shown
+
+### Files Modified
+- `frontend/src/components/marketing/AegisPrompt.tsx` (submit flow now uses `api` client + ApiError handling)
+- `app/api/v1/endpoints/copilot.py` (validation, timeout, no-internal-leak error handling, empty-response guard)
+- `.env` (empty `GEMINI_API_KEY=` placeholder; gitignored)
+- `docs/AEGIS_WORK_LOG.md` (this entry)
+
+(Pre-existing uncommitted work from earlier sessions — copilot router registration in `app/api/v1/api.py`, `google-genai` in `requirements.txt`, AegisPrompt interactive form, `.gitignore` env hardening — was verified, kept, and is part of these features.)
+
+### Regression
+PASS — navbar, headline ("Let your agents act. Aegis keeps them safe.", 56px Geist), prompt dimensions (740×133), horizon, atmosphere, CTA, lower sections all present; no horizontal overflow; typewriter/perimeter/power-on coexist (stacked animations, ring never restarted); reduced motion renders final state; dashboard/auth/attack-lab code untouched.
+
+### Browser QA
+Programmatic only (headless Chrome CDP): power-on luminance checkpoints, perimeter angle sampling, typewriter text sampling across 7 questions, user-input protection test, logged-out/in/custom/empty query flows via in-page fetch, reduced-motion computed styles. Backend HTTP tests via Invoke-WebRequest (401/400/503 paths). No subjective visual inspection performed (model cannot view images).
+
+### Tests
+- `npm run lint`: 0 errors, 2 pre-existing warnings in AegisPrompt.tsx (unused `timers` ref, exhaustive-deps — left as-is per change-scope rule)
+- `npm run typecheck`: clean
+- `npx vitest run`: 15/15 pass
+- `npm run build`: PASS (27 routes)
+- Backend: `copilot.py` syntax + import OK; route in OpenAPI schema with APIKeyHeader security; google-genai installed in .venv
+
+### Known Issues
+- No real `GEMINI_API_KEY` configured in this environment — the provider call returns 503 by design (fail-closed). Set `GEMINI_API_KEY` in `.env` to enable live responses; everything up to the provider boundary is verified.
+- Headless-Chrome E2E typing via CDP input events proved flaky (navigation races); the Gemini flow was instead verified through in-page fetches from the mounted site — the same network path the component uses. A manual browser sanity check of the visual submit interaction is recommended.
+- `AegisPrompt.tsx` has 2 pre-existing lint warnings (unused `timers` ref; useEffect exhaustive-deps) — out of scope for this fix, recorded per instructions.
+- Untracked files `good_globals.css`, `head_globals.css`, `old_globals.css` sit in the repo root (debug snapshots from the earlier CSS-fix session) — left untouched, should be deleted/committed per repo owner's preference.
+
+---
+
+## Previous Entry
+
+**Date / time:** 2026-09-13
+**Task:** Implementation of Feature 2 (Search Bar Question Animation) and Feature 3 (Authenticated Gemini Search)
+
+## Objective
+
+Convert the static AegisPrompt typewriter component into a fully interactive copilot search interface powered by the Gemini 2.5 Flash model on the backend.
+
+## Changes Made
+- `AegisPrompt.tsx`: Converted the decorative `<p>` tag into an `<input>` field wrapped in a `<form>`. Added a new response panel below the prompt ring to display the analysis result.
+- `requirements.txt`: Added `google-genai>=0.2.0`.
+- `app/api/v1/endpoints/copilot.py`: Created a new endpoint for secure server-side Gemini integration.
+- `app/api/v1/api.py`: Registered the Copilot router.
+
+## Tests / Build
+- Verified python compilation for new backend code.
+- Frontend `npm run typecheck` passed with 0 errors.
+
+---
+
+## Previous Entry
 
 **Date / time:** 2026-09-13
 **Task:** Restoration of Approved Visuals (Navbar, Power-on, Prompt Glow)
@@ -269,3 +347,45 @@ Review the rendered marketing page and commit the visual system updates.
  N E X T :   R e v i e w   t h e   r e n d e r e d   F u s e d   r e p l i c a t i o n   o n   t h e   d e v   s e r v e r ,   a n d   i f   a c c e p t a b l e ,   d e p l o y   t o   p r e v i e w   o r   c o m m i t   t o   v e r s i o n   c o n t r o l . 
   
  
+---
+
+## Latest Task
+
+**Date / time:** 2026-09-13
+**Task:** Fixed CSS parsing error in globals.css
+
+## Root Cause
+A UTF-8 BOM (bytes EF BB BF) had been prepended to frontend/src/app/globals.css
+(uncommitted edit). When Tailwind v4 expanded @import "tailwindcss", the BOM
+landed mid-stream ahead of the generated @layer properties block; Turbopack's
+Lightning CSS parser then failed with "Invalid dangling combinator in selector"
+at globals.css:2:1 — pointing at generated output, not the true cause. Proof:
+the fully transformed file failed lightningcss, while the identical transform
+with only the BOM removed parsed clean. PostCSS alone parsed both (it
+tolerates the stray BOM), which is why the error surfaced only at build time.
+
+## Fix
+Stripped the 3 BOM bytes from globals.css. No other byte changed (18,769 ->
+18,766 bytes). No selectors, colors, animations, or rules were touched.
+
+## Files Modified
+- frontend/src/app/globals.css (BOM removal only)
+
+## Regression
+PASS — verified via localhost HTTP 200 + SSR HTML (aegis-power-on,
+aegis-rise-headline, headline-luminous, aegis-prompt, hero-horizon,
+aegis-prompt-ring--crisp, headline text all present) and headless CDP DOM
+probe: hero renders, prompt 740x133 with caret/typewriter cycling, clockwise
+perimeter ring animating (9s cycle + power-on fade), horizon rendering
+(2560x1126, black surface, cream rim shadows), headline 56px Geist with
+gradient clip, power-on animation classes intact, no horizontal overflow.
+Navbar/headline/CTA untouched by the fix.
+
+## Tests
+- npm run lint: 0 errors (3 pre-existing warnings in AegisPrompt.tsx, untouched)
+- npm run typecheck: clean
+- npm run build: PASS (27 routes, no CSS parsing errors)
+- PostCSS + lightningcss transform of globals.css: PASS
+
+## Status
+STATUS: COMPLETE

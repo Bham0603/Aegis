@@ -2,17 +2,17 @@
 
 /* ============================================================
    AEGIS DESIGN SYSTEM
-   Background #050505 · Deep black #000000 · Surface #0D0D0D
-   Elevated #111111 · Border #252525 · Accent #DFFF3F
-   Text #F4F3E8 · Secondary #C9C8BE · Muted #777770
-   Semantic: SAFE lime · REVIEW amber · BLOCKED red · NEUTRAL gray
+   Background #050505 ┬À Deep black #000000 ┬À Surface #0D0D0D
+   Elevated #111111 ┬À Border #252525 ┬À Accent #DFFF3F
+   Text #F4F3E8 ┬À Secondary #C9C8BE ┬À Muted #777770
+   Semantic: SAFE lime ┬À REVIEW amber ┬À BLOCKED red ┬À NEUTRAL gray
    ============================================================ */
 
 :root {
-  --background: #0a0a0a;
+  --background: #050505;
   --background-secondary: #0a0a0a;
-  --card: #141414;
-  --card-elevated: #1a1a1a;
+  --card: #0d0d0d;
+  --card-elevated: #111111;
   --border: #252525;
   --border-strong: #303030;
   --accent: #dfff3f;
@@ -22,7 +22,7 @@
   --foreground-secondary: #c9c8be;
   --foreground-muted: #777770;
 
-  /* Semantic status colors — never decorative */
+  /* Semantic status colors ÔÇö never decorative */
   --color-allow: #dfff3f;
   --color-review: #f5b942;
   --color-block: #ff5a5f;
@@ -107,7 +107,7 @@ body {
 
 /* ---------- Cinematic hero atmosphere ----------
    Black page with subtle green illumination. Layered:
-   broad low glow → concentrated core glow → faint grid → vignette. */
+   broad low glow ÔåÆ concentrated core glow ÔåÆ faint grid ÔåÆ vignette. */
 
 .hero-glow-broad {
   background-image: radial-gradient(
@@ -152,7 +152,7 @@ body {
 }
 
 /* ---------- Cinematic hero horizon ----------
-   Enormous black dome emerging from the lower hero — a security
+   Enormous black dome emerging from the lower hero ÔÇö a security
    boundary. Oversized ellipse, clipped to the section by its parent
    overflow-hidden wrapper so it never bleeds into the next section
    or creates horizontal scroll. */
@@ -162,14 +162,32 @@ body {
   left: 50%;
   bottom: -110vh;
   bottom: -110svh;
-  width: 2242px;
-  height: 955px;
+  width: 180vw;
+  height: 140vh;
+  height: 140svh;
   transform: translateX(-50%);
-  border-radius: 100%;
-  background-color: transparent;
+  border-radius: 50%;
+  background-color: #000000;
+  /* Light falling on a black surface: a tight cream highlight right
+     at the apex edge, over an extremely subtle green reflection
+     washing the upper face of the dome. Never a bright green
+     outline ÔÇö the crisp line below is a soft gray/cream hairline. */
+  background-image:
+    radial-gradient(
+      ellipse 62% 100% at 50% 0%,
+      rgba(244, 243, 232, 0.05),
+      transparent 11%
+    ),
+    radial-gradient(
+      ellipse 55% 100% at 50% 0%,
+      rgba(223, 255, 63, 0.045),
+      transparent 58%
+    );
   box-shadow:
-    inset 0px 2px 20px 0px rgba(255, 255, 255, 0.8),
-    0px -10px 50px 1px rgba(255, 255, 255, 0.15);
+    0 -1px 0 0 rgba(244, 243, 232, 0.06),
+    0 -14px 44px -12px rgba(244, 243, 232, 0.05),
+    0 -22px 80px -22px rgba(223, 255, 63, 0.12),
+    0 -110px 240px -50px rgba(223, 255, 63, 0.06);
   pointer-events: none;
 }
 
@@ -215,7 +233,7 @@ body {
   flex-shrink: 0;
 }
 
-/* ---------- Aegis prompt — living perimeter ----------
+/* ---------- Aegis prompt ÔÇö living perimeter ----------
    A single small lime highlight travels slowly around the prompt
    perimeter: dark surface + hairline border + moving 1.5px ring +
    soft blurred halo. Runs on the compositor (transform-only
@@ -230,7 +248,7 @@ body {
 
 .aegis-prompt {
   position: relative;
-  border-radius: 16px;
+  border-radius: 22px;
 }
 
 /* Crisp ring layer: conic gradient with one short lime segment,
@@ -252,11 +270,13 @@ body {
     transparent 358deg,
     transparent 360deg
   );
-  -webkit-mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
-  -webkit-mask-clip: content-box, border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
-  mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
-  mask-clip: content-box, border-box;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
   mask-composite: exclude;
   animation:
     prompt-angle-rotate 9s linear infinite,
@@ -264,24 +284,24 @@ body {
   z-index: 3;
 }
 
-/* Soft glow copy — same gradient, heavier blur, under the surface:
+/* Soft glow copy ÔÇö same gradient, heavier blur, under the surface:
    reads as a small halo/trail around the traveling highlight
    without any green tint inside the prompt. */
 .aegis-prompt-halo {
   position: absolute;
   inset: -3px;
-  border-radius: 16px;
+  border-radius: 26px;
   padding: 6px;
   pointer-events: none;
-  filter: blur(12px);
+  filter: blur(10px);
   opacity: 0.5;
   z-index: 0;
 }
 
 .aegis-prompt-ring--soft {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  position: static;
+  inset: auto;
+  padding: 6px;
   background: conic-gradient(
     from var(--prompt-angle),
     transparent 0deg,
@@ -305,7 +325,7 @@ body {
 /* Perimeter power-on: the traveling highlight begins invisible and
    eases to full brightness after the prompt surface has appeared
    (reveal ends ~950ms + short pause). The perpetual rotation is
-   never restarted — only opacity eases in. The halo wrapper holds
+   never restarted ÔÇö only opacity eases in. The halo wrapper holds
    the dimmed state too, since its static 0.5 opacity would show
    through during the dark phase. */
 @keyframes aegis-ring-power-on {
@@ -320,7 +340,10 @@ body {
 /* Surface sits above the halo but below the crisp ring. */
 .aegis-prompt-surface {
   z-index: 2;
-  box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 40px 0px;
+  box-shadow:
+    0 10px 40px -12px rgba(0, 0, 0, 0.9),
+    0 2px 12px -6px rgba(0, 0, 0, 0.8),
+    0 0 24px -10px rgba(223, 255, 63, 0.1);
   transition:
     box-shadow 0.35s ease,
     background-color 0.35s ease,
@@ -336,7 +359,10 @@ body {
 .aegis-prompt:hover .aegis-prompt-surface {
   transform: translateY(-1px);
   background-color: #101010;
-  box-shadow: rgba(0, 0, 0, 0.6) 0px 14px 45px 0px;
+  box-shadow:
+    0 16px 48px -14px rgba(0, 0, 0, 0.95),
+    0 4px 16px -6px rgba(0, 0, 0, 0.85),
+    0 0 36px -10px rgba(223, 255, 63, 0.16);
 }
 
 /* Focus: keep the living ring, strengthen it slightly, add an
@@ -358,7 +384,7 @@ body {
   );
 }
 
-/* Reduced motion: static prompt — border becomes a quiet static
+/* Reduced motion: static prompt ÔÇö border becomes a quiet static
    lime hairline, no rotation, no halo pulse, no typewriter. */
 @media (prefers-reduced-motion: reduce) {
   .aegis-prompt-ring--crisp,
@@ -384,27 +410,25 @@ body {
 .panel {
   background-color: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 0.75rem;
 }
 
 .panel-elevated {
   background-color: var(--card-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 0.75rem;
 }
 
 .panel-interactive {
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
-    box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
 .panel-interactive:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--border-strong);
   background-color: var(--card-elevated);
-  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 /* Legacy glass classes kept for existing dashboard pages (unchanged behavior) */
@@ -460,9 +484,8 @@ body {
   color: #0a0a0a;
   font-weight: 600;
   font-size: 0.875rem;
-  padding: 8px 16px;
-  height: 44px;
-  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
   transition: all 0.15s ease;
 }
 
@@ -474,20 +497,19 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #141414;
-  color: #ffffff;
-  border: 0.8px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--card-elevated);
+  color: var(--foreground);
+  border: 1px solid var(--border-strong);
   font-weight: 500;
   font-size: 0.875rem;
-  padding: 8px 16px;
-  height: 44px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
 }
 
 .btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background-color: #171717;
+  border-color: #3a3a3a;
 }
 
 /* ---------- Typography helpers ---------- */
@@ -515,15 +537,17 @@ body {
 }
 
 /* ---------- Luminous headline ----------
-   Soft light treatment: pale yellow-green top → luminous cream →
+   Soft light treatment: pale yellow-green top ÔåÆ luminous cream ÔåÆ
    warm ivory bottom. Static gradient (never animated), reads as
    light on text rather than paint. No hard color stops. */
 
 .headline-luminous {
   background-image: linear-gradient(
-    0deg,
-    #ffffff 0%,
-    #e3eda4 100%
+    180deg,
+    #e5f5a7 0%,
+    #e3eeb1 34%,
+    #eeeed0 68%,
+    #f4f3e8 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -543,11 +567,11 @@ body {
 /* ---------- Initial page-load power-on ----------
    A cinematic reveal of the whole composition: the page starts
    very dark and the hero progressively reaches full brightness
-   within ~1s — atmosphere, navbar, content, prompt, horizon each
+   within ~1s ÔÇö atmosphere, navbar, content, prompt, horizon each
    fading in on slightly staggered delays. Implemented as one-shot
    CSS animations: no JS loops, no hydration state, SSR-safe (the
    pre-animation styles ARE the server-rendered styles, so there is
-   no flash of unstyled content and no layout shift — only opacity
+   no flash of unstyled content and no layout shift ÔÇö only opacity
    and transform are animated).
 
    Sequence (tuned to the reference recording):
@@ -589,12 +613,12 @@ body {
 }
 
 /* Page-level dim on the hero composition (homepage only). Animates
-   the section from 0.35 opacity — the "very dark at 0ms" state. */
+   the section from 0.35 opacity ÔÇö the "very dark at 0ms" state. */
 .aegis-power-on {
   animation: aegis-page-power-on 0.5s ease-out both;
 }
 
-/* Staggered element reveals — full composition settled ~1s.
+/* Staggered element reveals ÔÇö full composition settled ~1s.
    Timeline per the reference: atmosphere ~200ms, navbar ~350ms,
    headline ~500ms, copy ~550ms, prompt ~600ms, horizon ~700ms. */
 
@@ -631,7 +655,7 @@ body {
 }
 
 /* The announcement strip above the navbar joins the homepage
-   power-on sequence via :has() — no JS, no layout change. */
+   power-on sequence via :has() ÔÇö no JS, no layout change. */
 body:has(.aegis-power-on) .announcement-bar {
   animation: aegis-fade-in 0.35s ease-out 0.3s both;
 }
@@ -729,59 +753,3 @@ body:has(.aegis-power-on) .announcement-bar {
 ::-webkit-scrollbar-thumb:hover {
   background: #3a3a3a;
 }
-
-/* ---------- Fused Corner Reticles ---------- */
-.corner-reticle {
-  position: relative;
-}
-.corner-reticle::before,
-.corner-reticle::after {
-  content: "";
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border: 1px solid var(--accent);
-  opacity: 0;
-  transition: all 0.3s ease;
-  pointer-events: none;
-}
-.corner-reticle::before {
-  top: -2px;
-  left: -2px;
-  border-right: none;
-  border-bottom: none;
-}
-.corner-reticle::after {
-  bottom: -2px;
-  right: -2px;
-  border-left: none;
-  border-top: none;
-}
-.corner-reticle:hover::before,
-.corner-reticle:hover::after {
-  opacity: 1;
-  transform: scale(1.2);
-}
-
-/* ---------- Scroll-Driven Illumination ---------- */
-@supports (animation-timeline: view()) {
-  .scroll-illuminate {
-    background: linear-gradient(to right, var(--foreground) 50%, var(--foreground-muted) 50%);
-    background-size: 200% 100%;
-    background-position: 100% 0;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: illuminate-text linear both;
-    animation-timeline: view();
-    animation-range: entry 20% cover 50%;
-  }
-
-  @keyframes illuminate-text {
-    to {
-      background-position: 0 0;
-    }
-  }
-}
-
-

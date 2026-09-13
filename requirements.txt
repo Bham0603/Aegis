@@ -14,3 +14,4 @@ structlog>=24.0.0
 
 python-dotenv
 openai
+google-genai>=0.2.0

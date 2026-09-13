@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { useSafeReducedMotion } from "@/lib/use-safe-reduced-motion";
+import { api, ApiError } from "@/lib/api";
 import { ArrowRight, Shield } from "lucide-react";
 
 /**
@@ -51,6 +52,11 @@ export function AegisPrompt() {
   );
   const [text, setText] = useState("");
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [inputValue, setInputValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
@@ -103,6 +109,33 @@ export function AegisPrompt() {
   const showTypewriter = mounted && !reduceMotion;
   const stableQuestion = QUESTIONS[questionIndex];
 
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const query = inputValue.trim();
+    if (!query) return;
+
+    setLoading(true);
+    setError(null);
+    setResponse(null);
+    try {
+      const data = await api.post<{ response: string }>(
+        "/api/v1/copilot/ask",
+        { query }
+      );
+      setResponse(data.response);
+    } catch (err) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        setError("Authentication required. Log in with an API key to ask Aegis.");
+      } else if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError("Network error. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className="aegis-prompt group relative mx-auto w-full max-w-[740px]"
@@ -132,43 +165,84 @@ export function AegisPrompt() {
             Aegis
           </span>
 
-          <p className="min-w-0 flex-1 truncate text-left text-[17px] font-medium leading-normal tracking-[0.01em] text-foreground-secondary sm:text-[19px]">
-            {showTypewriter ? (
-              <>
-                <span className="sr-only">Example question: </span>
-                <span aria-hidden="true">
-                  {text}
-                  <span className="prompt-caret" />
-                </span>
-              </>
-            ) : (
-              <span
-                aria-hidden="true"
-                className={mounted && !reduceMotion ? undefined : "text-[#85857C]"}
-              >
-                {mounted && !reduceMotion ? stableQuestion : PLACEHOLDER}
-              </span>
+          <form onSubmit={handleSubmit} className="min-w-0 flex-1 relative flex items-center h-[28px] sm:h-[30px]">
+            {(!isFocused && !inputValue) && (
+              <div className="pointer-events-none absolute inset-0 flex items-center text-left text-[17px] font-medium leading-normal tracking-[0.01em] text-foreground-secondary sm:text-[19px]">
+                {showTypewriter ? (
+                  <>
+                    <span className="sr-only">Example question: </span>
+                    <span aria-hidden="true">
+                      {text}
+                      <span className="prompt-caret" />
+                    </span>
+                  </>
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className={mounted && !reduceMotion ? undefined : "text-[#85857C]"}
+                  >
+                    {mounted && !reduceMotion ? stableQuestion : PLACEHOLDER}
+                  </span>
+                )}
+              </div>
             )}
-          </p>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              className="w-full bg-transparent text-[17px] font-medium leading-normal tracking-[0.01em] text-foreground-secondary placeholder:text-transparent focus:outline-none focus-visible:outline-none sm:text-[19px] relative z-10"
+              style={{ outline: "none", boxShadow: "none" }}
+              placeholder={PLACEHOLDER}
+              aria-label={PLACEHOLDER}
+              disabled={loading}
+            />
+          </form>
         </div>
 
         {/* Bottom action row */}
         <div className="mt-auto flex items-center justify-between border-t border-border-base/50 pt-2 px-2">
           <div className="flex items-center gap-2">
-            <button className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground-muted hover:bg-white/5 hover:text-foreground transition-colors">
+            <button 
+              type="button" 
+              className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground-muted hover:bg-white/5 hover:text-foreground transition-colors"
+              onClick={() => {
+                setInputValue(QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)]);
+                setIsFocused(true);
+              }}
+              disabled={loading}
+            >
               Surprise me
             </button>
           </div>
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-foreground transition-all duration-300 hover:bg-white/10 cursor-pointer"
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
+            aria-label="Submit query"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-foreground transition-all duration-300 hover:bg-white/10 cursor-pointer disabled:opacity-50"
           >
             <ArrowRight className="h-4 w-4" />
-          </span>
+          </button>
         </div>
       </div>
 
       <div aria-hidden="true" className="aegis-prompt-ring aegis-prompt-ring--crisp !rounded-[16px]" />
+
+      {/* Response Panel */}
+      {(response || error || loading) && (
+        <div className="absolute top-[calc(100%+16px)] left-0 right-0 rounded-[16px] border border-border-base bg-[#141414] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.6)] z-20 text-left text-[15px] text-foreground-secondary">
+          {loading && (
+            <div className="flex items-center gap-3 text-accent">
+              <Shield className="h-4 w-4 animate-pulse" />
+              <span className="animate-pulse font-medium">Aegis is analyzing...</span>
+            </div>
+          )}
+          {error && <div className="text-block font-medium">{error}</div>}
+          {response && <div className="leading-relaxed whitespace-pre-wrap">{response}</div>}
+        </div>
+      )}
     </div>
   );
 }

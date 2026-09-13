@@ -39,3 +39,6 @@ extension/out/
 extension/.vscode-test/
 *.vsix
 
+
+.vercel
+.env*
